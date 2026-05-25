@@ -1,0 +1,40 @@
+# Virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Mac
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Environment variables
+.env
+
+# Data files
+data/raw/
+data/processed/
+data/exports/
+
+# ML models
+*.pkl
+*.joblib
+*.pt
+*.h5
+
+# Logs
+*.log
+
+# Pytest
+.pytest_cache/
+
+# Build files
+build/
+dist/

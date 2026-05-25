@@ -1,2 +1,14 @@
 # E-Bike-Battery-Network-Simulation
-simulation engine
+Simulation and forecasting platform for urban e-bike battery swap infrastructure
+
+## Goals
+- Simulate battery swap networks
+- Model riders and lockers
+- Forecast demand and shortages
+- Explore redistribution strategies
+
+## Tech Stack
+- Python
+- Mesa
+- Streamlit
+- scikit-learn
