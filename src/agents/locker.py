@@ -1,4 +1,4 @@
-
+import mesa
 from mesa import Agent
 
 class Locker(mesa.Agent):

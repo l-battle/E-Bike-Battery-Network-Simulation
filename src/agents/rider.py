@@ -29,6 +29,8 @@ class Rider(Agent):
             locker = available_lockers[0]
             locker.charged_batteries -= 1
             self.battery_level = 100
-            print(f"Rider {self.rider_id} swapped battery at locked {locker.locker_id}.")
+            self.model.successful_swaps += 1
+            print(f"Rider {self.rider_id} swapped battery at locker {locker.locker_id}.")
         else:
+            self.model.failed_swaps += 1
             print(f"Rider {self.rider_id} could not find a charged battery.")
