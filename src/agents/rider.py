@@ -5,17 +5,33 @@ import random, math
 class Rider(Agent):
     """A rider """
 
-    def __init__(self, model, rider_id, x, y, battery_level=100, battery_threshold=20, speed=5, consumption_rate=1):
+    def __init__(
+            self, 
+            model, 
+            rider_id, 
+            x, y, 
+            battery_level=100, 
+            battery_threshold=20, 
+            speed=5, 
+            consumption_rate=1
+            ):
         super().__init__(model)
         self.rider_id = rider_id
+
         self.x = x
         self.y = y
-        self.battery_threshold = battery_threshold
         self.speed = speed
+
+        self.battery_threshold = battery_threshold
         self.consumption_rate = consumption_rate
         self.battery_level = battery_level
+        
+        self.destination_x = random.uniform(0, model.width)
+        self.destination_y = random.uniform(0, model.height)
         self.target_locker = None
         self.status = "riding"
+
+        self.path_history = [(self.x, self.y)]
 
     def step(self):
         # If battery is low, enter seeking mode
@@ -48,7 +64,18 @@ class Rider(Agent):
 
         # Normal riding behavior
         else:
-            self.random_move()
+            self.move_towards(
+                self.destination_x,
+                self.destination_y
+            )
+
+            destination_distance = math.sqrt(
+                (self.x - self.destination_x)**2 +
+                (self.y - self.destination_y)**2
+            )
+
+            if destination_distance <= self.speed:
+                self.choose_new_destination()
 
     def random_move(self):
         dx = random.uniform(-1, 1) * self.speed
@@ -59,6 +86,7 @@ class Rider(Agent):
     
         distance = math.sqrt(dx**2 + dy**2)
         self.battery_level -= distance * self.consumption_rate
+        self.path_history.append((self.x, self.y))
 
     def move_towards(self, target_x, target_y):
         dx = target_x - self.x
@@ -73,6 +101,7 @@ class Rider(Agent):
         self.y += (dy / distance) * move_distance
 
         self.battery_level -= move_distance * self.consumption_rate
+        self.path_history.append((self.x, self.y))
 
     def find_nearest_available_locker(self):
         lockers = [
@@ -97,5 +126,9 @@ class Rider(Agent):
             self.status = "riding"
             self.target_locker = None
             self.model.swap_count += 1
-            
+
             print(f"Rider {self.rider_id} swapped at Locker {locker.locker_id}")
+
+    def choose_new_destination(self):
+        self.destination_x = random.uniform(0, self.model.width)
+        self.destination_y = random.uniform(0, self.model.height)
