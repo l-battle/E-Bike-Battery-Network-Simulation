@@ -1,5 +1,6 @@
 from mesa import Agent
 from src.agents.locker import Locker
+from src.utils.config import DEFAULT_SPEED, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION
 import random, math
 
 class Rider(Agent):
@@ -11,9 +12,9 @@ class Rider(Agent):
             rider_id, 
             x, y, 
             battery_level=100, 
-            battery_threshold=20, 
-            speed=5, 
-            consumption_rate=1
+            battery_threshold=DEFAULT_BATTERY_THRESHOLD, 
+            speed=DEFAULT_SPEED, 
+            consumption_rate=DEFAULT_CONSUMPTION
             ):
         super().__init__(model)
         self.rider_id = rider_id

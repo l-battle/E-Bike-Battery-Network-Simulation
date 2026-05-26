@@ -1,10 +1,11 @@
 from mesa import Model
 from src.agents.rider import Rider
 from src. agents.locker import Locker
+from src.utils.config import DEFAULT_LOCKER_COUNT, DEFAULT_RIDER_COUNT, DEFAULT_CHARGE_TIME, WORLD_HEIGHT, WORLD_WIDTH
 import random
 
 class BatterySwapModel(Model):
-    def __init__(self, n_riders = 5, n_lockers = 3, width=100, height=100):
+    def __init__(self, n_riders=DEFAULT_RIDER_COUNT, n_lockers=DEFAULT_LOCKER_COUNT, width=WORLD_WIDTH, height=WORLD_HEIGHT):
         super().__init__()
 
         self.width = width
@@ -26,7 +27,7 @@ class BatterySwapModel(Model):
 
         for i in range(n_lockers):
             x, y = locker_positions[i]
-            locker = Locker(self, locker_id=i, x=x, y=y, charged_batteries=3, charge_time=10)
+            locker = Locker(self, locker_id=i, x=x, y=y, charged_batteries=3, charge_time=DEFAULT_CHARGE_TIME)
             self.agents.add(locker)
 
         for i in range(n_riders):

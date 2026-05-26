@@ -1,10 +1,11 @@
 import mesa
 from mesa import Agent
+from src.utils.config import DEFAULT_CHARGE_TIME
 
 class Locker(mesa.Agent):
     """battery locker"""
 
-    def __init__(self, model, locker_id, x, y, charged_batteries = 5, charge_time=10):
+    def __init__(self, model, locker_id, x, y, charged_batteries = 5, charge_time=DEFAULT_CHARGE_TIME):
         super().__init__(model)
         self.locker_id = locker_id
         self.x = x

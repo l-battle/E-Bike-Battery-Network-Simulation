@@ -12,3 +12,14 @@ Simulation and forecasting platform for urban e-bike battery swap infrastructure
 - Mesa
 - Streamlit
 - scikit-learn
+
+## Current Features
+
+- Agent-based rider simulation
+- Spatial rider movement
+- Locker network
+- Battery depletion
+- Battery swap logic
+- Charging/recovery system
+- Live matplotlib visualization
+- Trajectory visualization
