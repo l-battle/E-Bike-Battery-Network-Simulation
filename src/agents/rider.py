@@ -1,6 +1,7 @@
 from mesa import Agent
 from src.agents.locker import Locker
 from src.utils.config import DEFAULT_SPEED, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION
+from src.environment.hotspots import HotspotManager
 import random, math
 
 class Rider(Agent):
@@ -27,8 +28,7 @@ class Rider(Agent):
         self.consumption_rate = consumption_rate
         self.battery_level = battery_level
         
-        self.destination_x = random.uniform(0, model.width)
-        self.destination_y = random.uniform(0, model.height)
+        self.destination_x, self.destination_y = self.model.hotspot_manager.get_destination()
         self.target_locker = None
         self.status = "riding"
 
@@ -131,5 +131,4 @@ class Rider(Agent):
             print(f"Rider {self.rider_id} swapped at Locker {locker.locker_id}")
 
     def choose_new_destination(self):
-        self.destination_x = random.uniform(0, self.model.width)
-        self.destination_y = random.uniform(0, self.model.height)
+        self.destination_x, self.destination_y  = self.model.hotspot_manager.get_destination()

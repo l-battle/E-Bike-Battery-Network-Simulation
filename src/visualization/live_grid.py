@@ -7,18 +7,31 @@ from src.agents.locker import Locker
 def animate_simulation(model, steps=100, interval=300):
     fig, ax = plt.subplots(figsize=(8, 8))
 
+
     def update(frame):
         model.step()
         ax.clear()
+
+        for i, (x, y) in enumerate(model.hotspot_manager.hotspots):
+            ax.scatter(x, y, marker='*', s=180, alpha=0.5)
+            ax.text(x, y, f"H{i}", fontsize=9)
 
         for agent in model.agents:
             if isinstance(agent, Rider):
                 marker = 'x' if agent.status == "seeking_locker" else 'o'
 
-                ax.scatter(agent.x, agent.y, marker=marker)
+                ax.scatter(agent.destination_x, agent.destination_y, marker=".", s=30)
+                ax.plot(
+                [agent.x, agent.destination_x],
+                [agent.y, agent.destination_y],
+                linestyle=":",
+                linewidth=0.8,
+                )
+
+                ax.scatter(agent.x, agent.y, marker=marker, s=80)
                 ax.text(
-                    agent.x,
-                    agent.y,
+                    agent.x + 1,
+                    agent.y + 1,
                     f"R{agent.rider_id}\n{agent.battery_level:.0f}%",
                     fontsize=8
                 )
@@ -56,7 +69,8 @@ def animate_simulation(model, steps=100, interval=300):
         update, 
         frames=steps,
         interval=interval,
-        repeat=False
+        repeat=False,
+        cache_frame_data=False
     )
 
     plt.show()

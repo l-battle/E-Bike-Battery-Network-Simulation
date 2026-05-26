@@ -2,6 +2,7 @@ from mesa import Model
 from src.agents.rider import Rider
 from src. agents.locker import Locker
 from src.utils.config import DEFAULT_LOCKER_COUNT, DEFAULT_RIDER_COUNT, DEFAULT_CHARGE_TIME, WORLD_HEIGHT, WORLD_WIDTH
+from src.environment.hotspots import HotspotManager
 import random
 
 class BatterySwapModel(Model):
@@ -10,6 +11,7 @@ class BatterySwapModel(Model):
 
         self.width = width
         self.height = height
+        self.hotspot_manager = HotspotManager(self)
 
         #sim metrics
         self.history = []
