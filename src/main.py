@@ -49,3 +49,15 @@ plt.ylabel("y pos")
 plt.title("Rider and Locker Positions")
 plt.legend()
 plt.show()
+
+#charged+depleted battery plot
+plt.figure()
+
+plt.plot(df["step"], df["total_charged_batteries"], label="Charged batteries")
+plt.plot(df["step"], df["total_depleted_batteries"], label="Depleted batteries")
+
+plt.xlabel("Simulation step")
+plt.ylabel("Battery count")
+plt.title("Charged vs Depleted Batteries Over Time")
+plt.legend()
+plt.show()

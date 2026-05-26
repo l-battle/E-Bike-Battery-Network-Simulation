@@ -91,12 +91,11 @@ class Rider(Agent):
     def try_swap(self, locker):
         if locker.charged_batteries > 0:
             locker.charged_batteries -= 1
+            locker.add_depleted_battery()
+
             self.battery_level = 100
             self.status = "riding"
             self.target_locker = None
             self.model.swap_count += 1
+            
             print(f"Rider {self.rider_id} swapped at Locker {locker.locker_id}")
-        else:
-            self.model.failed_swaps += 1
-            self.target_locker = None
-            print(f"Rider {self.rider_id} failed to swap at Locker {locker.locker_id}")
