@@ -1,0 +1,98 @@
+Urban Battery Infrastructure Digital Twin for E-Bike Swap Networks
+Project Overview
+The rapid growth of urban e-bike delivery services has created increasing demand for scalable battery swap infrastructure. Companies such as Powershelter provide physical battery locker networks that allow delivery riders and e-bike users to exchange depleted batteries for charged ones throughout a city.
+However, optimizing such infrastructure is difficult in real-world environments due to operational complexity, fluctuating demand, weather conditions, rider behavior, and the high cost of live experimentation. Testing new locker placements, redistribution strategies, or charging policies directly in the field can disrupt operations and requires substantial resources.
+This project proposes the development of a digital twin simulation platform for urban e-bike battery swap infrastructure. The platform will simulate riders, lockers, battery inventory, charging cycles, and urban demand patterns within a virtual city environment. The goal is to create a system capable of modeling and evaluating infrastructure performance under different operational scenarios.
+In addition, the platform will incorporate AI-assisted forecasting and decision-support features to predict demand surges, identify potential battery shortages, and evaluate redistribution strategies.
+Problem Statement
+Current battery swap systems primarily focus on rider-facing applications such as navigation, battery level monitoring, and swap availability. However, there is limited focus on infrastructure-level simulation and operational planning tools that allow providers to safely test and optimize their systems before implementing costly real-world changes.
+Key operational questions include:
+Where should new lockers be placed?
+Which lockers are likely to experience shortages?
+How do weather conditions affect battery demand?
+How should charged batteries be redistributed across the network?
+How does the system behave under increased rider demand?
+Real-world experimentation is expensive, time-consuming, and operationally risky. A simulation environment could allow infrastructure providers to evaluate strategies virtually before deployment.
+Proposed Solution
+The proposed system will function as a digital simulation and decision-support platform for e-bike battery infrastructure.
+The platform will:
+Simulate urban rider traffic and battery swap behavior
+Model locker inventory and charging availability
+Incorporate environmental variables such as weather and time-of-day demand
+Visualize battery flows and shortage events
+Forecast demand using machine learning models
+Generate operational recommendations for redistribution and infrastructure planning
+The project is not intended to replicate existing rider-facing battery applications. Instead, it focuses on infrastructure-level operational intelligence and simulation.
+Core Components
+1. Simulation Engine
+A simulation environment representing:
+riders
+lockers
+batteries
+charging cycles
+swap events
+urban demand patterns
+2. Infrastructure Network
+A virtual map-based representation of:
+locker locations
+locker capacities
+battery inventory states
+charging availability
+3. Rider Agents
+Simulated delivery riders with varying:
+routes
+battery usage patterns
+demand frequency
+movement behavior
+4. Environmental Modeling
+External factors influencing system behavior:
+weather conditions
+rush hours
+weekends vs weekdays
+delivery hotspots
+demand surges
+5. AI-Assisted Forecasting
+Machine learning models will be explored for:
+demand prediction
+shortage forecasting
+redistribution recommendations
+Initial approaches may include:
+regression models
+Random Forest
+XGBoost
+simple time-series forecasting
+Expected Outputs
+The platform may generate:
+predicted battery shortages
+demand heatmaps
+redistribution recommendations
+infrastructure performance metrics
+scenario comparisons
+simulation visualizations
+Example outputs:
+“Locker A is likely to experience shortages between 18:00–20:00”
+“Adding a locker near Amsterdam Centraal reduces shortages by X%”
+“Rain-heavy conditions increase swap demand in region Y”
+Technical Scope
+Technologies Under Consideration
+Python
+Flask or FastAPI backend
+Simulation libraries
+Mapping APIs
+Machine learning libraries (scikit-learn, XGBoost)
+Data visualization/dashboard frameworks
+Feasibility and Constraints
+Due to limited access to proprietary operational data and hardware telemetry, the initial system will rely heavily on:
+synthetic/simulated data
+simplified battery abstractions
+public environmental data sources
+If available, anonymized operational data from Powershelter may be incorporated to improve realism.
+The project does not aim to develop advanced battery chemistry models or embedded hardware systems. Instead, the focus is on systems-level infrastructure simulation and operational decision support.
+Long-Term Vision
+Potential future extensions include:
+real-time operational integration
+reinforcement learning optimization
+multi-city scaling
+integration with multiple e-bike ecosystems
+live redistribution recommendation systems
+predictive maintenance components
