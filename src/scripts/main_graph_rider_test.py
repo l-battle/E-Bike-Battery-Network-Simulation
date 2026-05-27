@@ -1,9 +1,9 @@
 from src.simulation.graph_model import GraphBatterySwapModel
 from src.agents.graph_rider import GraphRider
 
-model = GraphBatterySwapModel()
+model = GraphBatterySwapModel(n_riders=10, n_lockers=5)
 
-for step in range(50):
+for step in range(80):
     model.step()
 
     for agent in model.agents:
@@ -17,3 +17,5 @@ for step in range(50):
                 f"Battery: {agent.battery_level:.2f} | "
                 f"Status: {agent.mode}"
             )
+
+print(model.history[-1])

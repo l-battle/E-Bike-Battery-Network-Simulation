@@ -1,5 +1,5 @@
 from mesa import Agent
-
+from src.utils.config import DEFAULT_CHARGE_TIME
 
 class GraphLocker(Agent):
     def __init__(
@@ -8,7 +8,7 @@ class GraphLocker(Agent):
         locker_id,
         node_id,
         charged_batteries=5,
-        charge_time=10,
+        charge_time=DEFAULT_CHARGE_TIME,
     ):
         super().__init__(model)
 
