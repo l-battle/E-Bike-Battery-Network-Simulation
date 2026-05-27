@@ -20,18 +20,18 @@ class CityGraph:
         graph = ox.project_graph(graph)
         return graph
         
-        def nearest_node(self, x, y):
-            return ox.distance.nearest_nodes(self.graph, X=x, Y=y)
+    def nearest_node(self, x, y):
+        return ox.distance.nearest_nodes(self.graph, X=x, Y=y)
         
-        def shortest_path(self, origin_node, destination_node):
-            return nx.shortest_path(
-                self.graph, 
-                origin_node,
-                destination_node,
-                weights='length'
-            )
+    def shortest_path(self, origin_node, destination_node):
+        return nx.shortest_path(
+            self.graph, 
+            origin_node,
+            destination_node,
+            weights='length'
+        )
         
-        def node_coordinates(self, node):
-            data = self.graph.nodes[node]
-            return data['x'], data['y']
+    def node_coordinates(self, node):
+        data = self.graph.nodes[node]
+        return data['x'], data['y']
         
