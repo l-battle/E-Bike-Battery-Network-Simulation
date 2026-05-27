@@ -17,7 +17,7 @@ class CityGraph:
             simplify=True
         )
 
-        graph = ox.project_graph(graph)
+        #graph = ox.project_graph(graph)
         return graph
         
     def nearest_node(self, x, y):
@@ -28,7 +28,7 @@ class CityGraph:
             self.graph, 
             origin_node,
             destination_node,
-            weights='length'
+            weight='length'
         )
         
     def node_coordinates(self, node):
