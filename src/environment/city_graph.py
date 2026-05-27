@@ -1,5 +1,6 @@
 import osmnx as ox
 import networkx as nx
+import random
 
 class CityGraph:
     def __init__(self, place_name, network_type='bike'):
@@ -35,3 +36,26 @@ class CityGraph:
         data = self.graph.nodes[node]
         return data['x'], data['y']
         
+    def random_reachable_node_pair(self, max_attempts=100):
+        nodes = list(self.graph.nodes)
+
+        for _ in range(max_attempts):
+            origin = random.choice(nodes)
+            destination = random.choice(nodes)
+
+            if origin == destination:
+                continue
+
+            try:
+                nx.shortest_path(
+                    self.graph,
+                    origin,
+                    destination,
+                    weight="length",
+                )
+                return origin, destination
+
+            except nx.NetworkXNoPath:
+                continue
+
+        raise ValueError("Could not find reachable node pair.")

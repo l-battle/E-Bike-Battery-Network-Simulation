@@ -1,15 +1,18 @@
 from mesa import Agent
-from src.utils.config import MODE_ARRIVED, MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_STRANDED, DEFAULT_BATTERY_THRESHOLD, DEFAULT_BATTERY_LEVEL, DEFAULT_CONSUMPTION
+from src.utils.config import MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_STRANDED, DEFAULT_BATTERY_THRESHOLD, DEFAULT_BATTERY_LEVEL, DEFAULT_CONSUMPTION
+import random
 
 class GraphRider(Agent):
-    def __init__(self, 
-                 model, 
-                 rider_id, 
-                 current_node, 
-                 destination_node, 
-                 battery_level=DEFAULT_BATTERY_LEVEL, 
-                 battery_threshold=DEFAULT_BATTERY_THRESHOLD,
-                 consumption_rate=DEFAULT_CONSUMPTION):
+    def __init__(
+        self,
+        model,
+        rider_id,
+        current_node,
+        destination_node,
+        battery_level=DEFAULT_BATTERY_LEVEL,
+        battery_threshold=DEFAULT_BATTERY_THRESHOLD,
+        consumption_rate=DEFAULT_CONSUMPTION
+    ):
         super().__init__(model)
 
         self.rider_id = rider_id
@@ -20,32 +23,22 @@ class GraphRider(Agent):
         self.battery_threshold = battery_threshold
         self.consumption_rate = consumption_rate
 
-        self.route = self.model.city_graph.shortest_path(
-            self.current_node,
-            self.trip_destination_node
-        )
-
-        self.trip_destination_node
         self.target_locker = None
         self.mode = MODE_DELIVERING
 
-        self.route = self.model.city_graph.shortest_path(
-            self.current_node,
-            self.trip_destination_node,
-        )
+        self.set_route(self.trip_destination_node)
 
         self.route_index = 0
 
     def step(self):
-        if self.mode in [MODE_ARRIVED, MODE_STRANDED]:
+        if self.mode == MODE_STRANDED:
             return
         # If trip is completed
         if self.route_index >= len(self.route) - 1:
             if self.mode == MODE_SEEKING_LOCKER:
                 self.try_swap()
-            else:
-                self.mode = MODE_ARRIVED
-                self.model.completed_trips += 1
+            elif self.mode == MODE_DELIVERING:
+                self.complete_delivery()
             return
 
         # If battery is low while delivering, reroute to nearest locker
@@ -92,19 +85,21 @@ class GraphRider(Agent):
     def try_swap(self):
         if self.target_locker is None:
             self.mode = MODE_STRANDED
+            self.model.stranded_count += 1
             self.model.failed_swaps += 1
             return
 
         if self.target_locker.charged_batteries <= 0:
             self.mode = MODE_STRANDED
             self.model.failed_swaps += 1
+            self.model.stranded_count += 1
             return
 
         self.model.swap_count += 1
         self.target_locker.charged_batteries -= 1
         self.target_locker.add_depleted_battery()
 
-        self.battery_level = 100
+        self.battery_level = DEFAULT_BATTERY_LEVEL
         self.target_locker = None
         self.mode = MODE_DELIVERING
 
@@ -114,3 +109,25 @@ class GraphRider(Agent):
         )
         self.route_index = 0
 
+    def choose_new_destination(self):
+        nodes = list(self.model.city_graph.graph.nodes)
+        new_destination = random.choice(nodes)
+
+        while new_destination == self.current_node:
+            new_destination = random.choice(nodes)
+
+        self.trip_destination_node = new_destination
+        self.set_route(self.trip_destination_node)
+        self.mode = MODE_DELIVERING
+
+
+    def complete_delivery(self):
+        self.model.completed_trips += 1
+        self.choose_new_destination()
+
+    def set_route(self, destination_node):
+        self.route = self.model.city_graph.shortest_path(
+            self.current_node,
+            destination_node,
+        )
+        self.route_index = 0

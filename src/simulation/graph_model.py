@@ -39,13 +39,10 @@ class GraphBatterySwapModel(Model):
             self.graph_lockers.append(locker)
             self.agents.add(locker)
 
-        origin = random.choice(nodes)
-        destination = random.choice(nodes)
+        origin, destination = self.city_graph.random_reachable_node_pair()
 
         for i in range(n_riders):
-            origin = random.choice(nodes)
-            destination = random.choice(nodes)
-
+            origin, destination = self.city_graph.random_reachable_node_pair()
             rider = GraphRider(
                 self,
                 rider_id=i,

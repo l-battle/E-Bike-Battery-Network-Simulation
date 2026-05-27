@@ -4,7 +4,7 @@ from src.visualization.graph_plots import show_all_graph_metrics
 
 model = GraphBatterySwapModel()
 
-for _ in range(300):
+for _ in range(1000):
     model.step()
 
 plot_graph_rider_snapshot(model)
