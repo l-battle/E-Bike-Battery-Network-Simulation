@@ -18,7 +18,13 @@ class CityGraph:
             simplify=True
         )
 
-        #graph = ox.project_graph(graph)
+        # Restrict to the largest strongly connected component so that every
+        # node can reach every other node. The directed bike network contains
+        # dead-end sinks/sources; without this, riders can arrive at a node
+        # from which no destination is reachable and pathfinding fails.
+        largest_scc = max(nx.strongly_connected_components(graph), key=len)
+        graph = graph.subgraph(largest_scc).copy()
+
         return graph
         
     def nearest_node(self, x, y):
@@ -47,6 +53,26 @@ class CityGraph:
             return 0.0
         return min(d.get("length", 0.0) for d in edge_data.values())
         
+    def has_path(self, origin_node, destination_node):
+        return nx.has_path(self.graph, origin_node, destination_node)
+
+    def random_reachable_destination(self, origin_node, max_attempts=100):
+        """Pick a random node that is reachable from origin_node."""
+        nodes = list(self.graph.nodes)
+
+        for _ in range(max_attempts):
+            destination = random.choice(nodes)
+
+            if destination == origin_node:
+                continue
+
+            if nx.has_path(self.graph, origin_node, destination):
+                return destination
+
+        raise ValueError(
+            f"Could not find a reachable destination from {origin_node}."
+        )
+
     def random_reachable_node_pair(self, max_attempts=100):
         nodes = list(self.graph.nodes)
 

@@ -8,7 +8,6 @@ from src.utils.config import (
     DEFAULT_CONSUMPTION,
     DEFAULT_SPEED_KMH,
 )
-import random
 
 
 class GraphRider(Agent):
@@ -131,16 +130,19 @@ class GraphRider(Agent):
         self.target_locker = None
         self.mode = MODE_DELIVERING
 
-        self.set_route(self.trip_destination_node)
+        # There may be no path from this locker back to the original
+        # destination; if so, pick a fresh reachable destination instead.
+        if self.model.city_graph.has_path(
+            self.current_node, self.trip_destination_node
+        ):
+            self.set_route(self.trip_destination_node)
+        else:
+            self.choose_new_destination()
 
     def choose_new_destination(self):
-        nodes = list(self.model.city_graph.graph.nodes)
-        new_destination = random.choice(nodes)
-
-        while new_destination == self.current_node:
-            new_destination = random.choice(nodes)
-
-        self.trip_destination_node = new_destination
+        self.trip_destination_node = (
+            self.model.city_graph.random_reachable_destination(self.current_node)
+        )
         self.set_route(self.trip_destination_node)
         self.mode = MODE_DELIVERING
 
