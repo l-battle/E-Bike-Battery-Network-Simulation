@@ -69,6 +69,7 @@ class GraphRider(Agent):
 
             if nearest_locker is None:
                 self.mode = MODE_STRANDED
+                self.model.stranded_count += 1
                 return
 
             self.target_locker = nearest_locker
