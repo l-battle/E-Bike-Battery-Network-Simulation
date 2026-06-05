@@ -38,3 +38,6 @@ data/exports/
 # Build files
 build/
 dist/
+# Experiment outputs (regenerable)
+data/experiments/*.csv
+data/experiments/*.json

@@ -28,6 +28,9 @@ DEFAULT_CHARGE_SECONDS = int(3.5 * 3600)   # time to recharge one depleted batte
 DEFAULT_CHARGED_BATTERIES = 5         # charged batteries a locker starts with
 DEFAULT_LOCKER_CAPACITY = 10          # max total batteries (charged + depleted)
 
+# Real locker hardware comes in these slot capacities.
+LOCKER_CAPACITY_TYPES = (7, 8, 10)
+
 # Warn if a CSV locker snaps further than this (metres) from its coordinates,
 # which usually means the graph has no coverage near that location.
 MAX_LOCKER_SNAP_METERS = 200
