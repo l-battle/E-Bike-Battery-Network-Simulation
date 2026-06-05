@@ -1,0 +1,11 @@
+hotspot_id,name,lat,lon,weight,radius_m
+0,Centrum dining,52.3730,4.8930,5.0,800
+1,De Pijp,52.3530,4.8920,4.0,700
+2,Jordaan,52.3740,4.8830,3.0,600
+3,Oud-West / De Baarsjes,52.3660,4.8650,3.0,700
+4,Oost / Dappermarkt,52.3610,4.9270,3.0,700
+5,Zuid / Zuidas,52.3390,4.8730,3.0,800
+6,Centraal station,52.3791,4.9003,2.0,500
+7,Noord / NDSM,52.3940,4.8990,2.0,800
+8,Westerpark,52.3870,4.8770,2.0,600
+9,Plantage / Oosterpark,52.3625,4.9150,2.0,600

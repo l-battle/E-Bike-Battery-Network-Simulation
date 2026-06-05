@@ -5,6 +5,7 @@ import networkx as nx
 
 from src.environment.city_graph import CityGraph
 from src.environment.locker_data import load_locker_records
+from src.environment.demand import DemandModel
 from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
 from src.utils.config import (
@@ -21,6 +22,7 @@ class GraphBatterySwapModel(Model):
         n_riders=10,
         n_lockers=5,
         locker_csv=None,
+        hotspot_csv=None,
         seconds_per_step=TIME_STEP_SECONDS,
         rider_speed_kmh=DEFAULT_SPEED_KMH,
     ):
@@ -30,6 +32,19 @@ class GraphBatterySwapModel(Model):
         self.current_step = 0
         self.seconds_per_step = seconds_per_step
         self.rider_speed_kmh = rider_speed_kmh
+
+        # Demand model (None = uniform random spawn/destinations)
+        self.demand = None
+        if hotspot_csv is not None:
+            demand = DemandModel(self.city_graph, hotspot_csv)
+            if demand.is_active:
+                self.demand = demand
+            else:
+                warnings.warn(
+                    "Hotspot CSV produced no usable hotspots; falling back to "
+                    "uniform random spawn and destinations.",
+                    stacklevel=2,
+                )
 
         self.graph_lockers = []
 
@@ -46,7 +61,7 @@ class GraphBatterySwapModel(Model):
             self._create_random_lockers(n_lockers)
 
         for i in range(n_riders):
-            origin, destination = self.city_graph.random_reachable_node_pair()
+            origin, destination = self._spawn_node_pair()
             rider = GraphRider(
                 self,
                 rider_id=i,
@@ -59,6 +74,21 @@ class GraphBatterySwapModel(Model):
             )
 
             self.agents.add(rider)
+
+    def sample_destination(self, current_node):
+        """Pick a delivery destination, demand-weighted if a demand model is
+        configured, otherwise a uniformly random reachable node."""
+        if self.demand is not None:
+            return self.demand.sample_node(exclude=current_node)
+        return self.city_graph.random_reachable_destination(current_node)
+
+    def _spawn_node_pair(self):
+        """Origin/destination pair for a new rider, demand-weighted if set."""
+        if self.demand is not None:
+            origin = self.demand.sample_node()
+            destination = self.demand.sample_node(exclude=origin)
+            return origin, destination
+        return self.city_graph.random_reachable_node_pair()
 
     def _add_locker(self, locker_id, node_id, charged_batteries):
         locker = GraphLocker(

@@ -140,9 +140,7 @@ class GraphRider(Agent):
             self.choose_new_destination()
 
     def choose_new_destination(self):
-        self.trip_destination_node = (
-            self.model.city_graph.random_reachable_destination(self.current_node)
-        )
+        self.trip_destination_node = self.model.sample_destination(self.current_node)
         self.set_route(self.trip_destination_node)
         self.mode = MODE_DELIVERING
 
