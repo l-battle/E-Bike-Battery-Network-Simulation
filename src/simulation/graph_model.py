@@ -1,5 +1,6 @@
 from mesa import Model
 import random
+import warnings
 import networkx as nx
 
 from src.environment.city_graph import CityGraph
@@ -9,6 +10,7 @@ from src.agents.graph_locker import GraphLocker
 from src.utils.config import (
     DEFAULT_BATTERY_LEVEL, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION,
     DEFAULT_SPEED_KMH, TIME_STEP_SECONDS, DEFAULT_CHARGE_TIME,
+    MAX_LOCKER_SNAP_METERS,
     MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_ARRIVED, MODE_STRANDED,
 )
 
@@ -79,6 +81,19 @@ class GraphBatterySwapModel(Model):
         for record in records:
             # Snap the real lat/lon to the nearest graph node.
             node_id = self.city_graph.nearest_node(x=record["lon"], y=record["lat"])
+
+            snap_distance = self.city_graph.distance_to_node(
+                node_id, x=record["lon"], y=record["lat"]
+            )
+            if snap_distance > MAX_LOCKER_SNAP_METERS:
+                warnings.warn(
+                    f"Locker {record['locker_id']} ('{record['name']}') snapped "
+                    f"{snap_distance:.0f} m from its coordinates "
+                    f"(> {MAX_LOCKER_SNAP_METERS} m). The graph likely has no "
+                    f"coverage near this location.",
+                    stacklevel=2,
+                )
+
             self._add_locker(
                 record["locker_id"],
                 node_id,

@@ -8,6 +8,10 @@ DEFAULT_SPEED_KMH = 18      # rider cruising speed (e-bike)
 
 DEFAULT_CHARGE_TIME = 10
 
+# Warn if a CSV locker snaps further than this (metres) from its coordinates,
+# which usually means the graph has no coverage near that location.
+MAX_LOCKER_SNAP_METERS = 200
+
 DEFAULT_RIDER_COUNT = 5
 DEFAULT_LOCKER_COUNT = 3
 

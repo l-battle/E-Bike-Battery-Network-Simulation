@@ -65,6 +65,21 @@ class CityGraph:
         data = self.graph.nodes[node]
         return data['x'], data['y']
 
+    def distance_to_node(self, node, x, y):
+        """Great-circle distance in metres from (lon x, lat y) to a node."""
+        node_x, node_y = self.node_coordinates(node)
+
+        lat1, lat2 = math.radians(y), math.radians(node_y)
+        dlat = lat2 - lat1
+        dlon = math.radians(node_x - x)
+
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+        )
+        earth_radius_m = 6_371_000
+        return 2 * earth_radius_m * math.asin(math.sqrt(a))
+
     def edge_length(self, u, v):
         """Length in metres of the edge between u and v.
 
