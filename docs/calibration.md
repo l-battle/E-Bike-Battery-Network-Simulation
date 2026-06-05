@@ -102,6 +102,46 @@ real effect is reduced *capacity*; we proxy it as higher consumption.
 
 ---
 
+## 3a. Parameter roles (the bridge to experiments + AI)
+
+Every parameter plays one of four roles. The role decides whether it gets a
+single calibrated **value** or a **range/distribution**, and where it shows up
+in the AI pipeline. This table defines the experiment sweeps and the surrogate
+model's feature/target schema.
+
+| Role | Treatment before learning | In the AI pipeline | Our parameters |
+|---|---|---|---|
+| **Physical** | One calibrated value (look up) | Fixed constant | speed, battery capacity, Wh/km, charge time, ferry times |
+| **Behavior-calibrate** | One calibrated value (output-match to real behavior), then frozen | Fixed constant | battery threshold fraction; locker-choice rule (nearest by travel time) |
+| **Scenario condition** | Realistic **range/distribution** — *sampled*, never pinned | Input **feature** | fleet size (n_riders), weather, demand intensity / hotspot variant |
+| **Decision variable** | Realistic **range / candidate set** (the search space) | Optimized **after** training; also a feature | **locker placement** |
+
+### Key consequences
+- **Do not pre-optimize scenario or decision params to a single value.** The
+  surrogate must see them *vary* to learn their effect. Pinning them blinds the
+  AI. They get realistic *ranges*, not calibrated points.
+- **"Tuned during learning"** refers to the ML model's own hyperparameters
+  (tree depth, learning rate) via cross-validation — separate from every
+  simulation parameter above.
+- **Capacity, battery stock, charger speed** are held constant for now but are
+  natural *future* decision variables; keep them as clean single knobs so they
+  can be promoted to levers later without refactoring.
+
+### Optimization framing (chosen)
+- **Fleet size** = scenario condition (sampled), not a lever.
+- **Number of lockers** = budget constraint (sweep a few budgets).
+- **Locker placement** = the decision variable: *given a budget of N lockers
+  under sampled conditions, where do they go to minimise failed swaps /
+  strandings?*
+
+### Resulting AI schema (target)
+- **Features** = scenario conditions (fleet size, weather, demand) + decision
+  encoding (locker layout / coverage features) + budget N.
+- **Targets** = failed-swap rate, stranding rate, delivery success, locker
+  utilisation (all normalised per time — see §4).
+- **Training rows** = one per `(sampled scenario, sampled layout, seed)` run,
+  produced by the experiment framework.
+
 ## 4. Calibration targets (output matching)
 
 To validate the *system*, compare these emergent metrics to real KPIs. Mark
