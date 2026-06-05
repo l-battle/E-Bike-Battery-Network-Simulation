@@ -142,17 +142,6 @@ class CityGraph:
         earth_radius_m = 6_371_000
         return 2 * earth_radius_m * math.asin(math.sqrt(a))
 
-    def edge_length(self, u, v):
-        """Length in metres of the edge between u and v.
-
-        OSM graphs are multigraphs, so parallel edges can exist; we take the
-        shortest, matching how shortest_path weights edges by 'length'.
-        """
-        edge_data = self.graph.get_edge_data(u, v)
-        if not edge_data:
-            return 0.0
-        return min(d.get("length", 0.0) for d in edge_data.values())
-        
     def has_path(self, origin_node, destination_node):
         return nx.has_path(self.graph, origin_node, destination_node)
 

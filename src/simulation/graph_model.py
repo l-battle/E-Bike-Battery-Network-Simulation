@@ -12,9 +12,10 @@ from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
 from src.utils.config import (
     DEFAULT_BATTERY_LEVEL, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION,
-    DEFAULT_SPEED_KMH, TIME_STEP_SECONDS, DEFAULT_CHARGE_TIME,
+    DEFAULT_SPEED_KMH, TIME_STEP_SECONDS, DEFAULT_CHARGE_SECONDS,
+    DEFAULT_CHARGED_BATTERIES, DEFAULT_LOCKER_CAPACITY,
     MAX_LOCKER_SNAP_METERS, DEFAULT_WEATHER,
-    MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_ARRIVED, MODE_STRANDED,
+    MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_STRANDED,
 )
 
 class GraphBatterySwapModel(Model):
@@ -99,13 +100,14 @@ class GraphBatterySwapModel(Model):
             return origin, destination
         return self.city_graph.random_reachable_node_pair()
 
-    def _add_locker(self, locker_id, node_id, charged_batteries):
+    def _add_locker(self, locker_id, node_id, charged_batteries, capacity):
         locker = GraphLocker(
             self,
             locker_id=locker_id,
             node_id=node_id,
             charged_batteries=charged_batteries,
-            charge_time=DEFAULT_CHARGE_TIME,
+            capacity=capacity,
+            charge_seconds=DEFAULT_CHARGE_SECONDS,
         )
         self.graph_lockers.append(locker)
         self.agents.add(locker)
@@ -113,7 +115,12 @@ class GraphBatterySwapModel(Model):
     def _create_random_lockers(self, n_lockers):
         nodes = list(self.city_graph.graph.nodes)
         for i in range(n_lockers):
-            self._add_locker(i, random.choice(nodes), charged_batteries=5)
+            self._add_locker(
+                i,
+                random.choice(nodes),
+                charged_batteries=DEFAULT_CHARGED_BATTERIES,
+                capacity=DEFAULT_LOCKER_CAPACITY,
+            )
 
     def _create_lockers_from_csv(self, csv_path):
         records = load_locker_records(csv_path)
@@ -137,6 +144,7 @@ class GraphBatterySwapModel(Model):
                 record["locker_id"],
                 node_id,
                 charged_batteries=record["charged_batteries"],
+                capacity=record["capacity"],
             )
 
     def step(self):

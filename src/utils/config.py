@@ -19,16 +19,15 @@ WEATHER_PRESETS = {
     "heat":  {"travel_time_factor": 1.05, "battery_factor": 1.10},
 }
 
-DEFAULT_CHARGE_TIME = 10
+# Locker battery economy
+DEFAULT_CHARGE_SECONDS = 3 * 3600     # time to recharge one depleted battery
+DEFAULT_CHARGED_BATTERIES = 5         # charged batteries a locker starts with
+DEFAULT_LOCKER_CAPACITY = 10          # max total batteries (charged + depleted)
 
 # Warn if a CSV locker snaps further than this (metres) from its coordinates,
 # which usually means the graph has no coverage near that location.
 MAX_LOCKER_SNAP_METERS = 200
 
-DEFAULT_RIDER_COUNT = 5
-DEFAULT_LOCKER_COUNT = 3
-
 MODE_DELIVERING = "delivering"
 MODE_SEEKING_LOCKER = "seeking_locker"
-MODE_ARRIVED = "arrived"
 MODE_STRANDED = "stranded"
