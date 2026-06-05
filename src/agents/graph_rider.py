@@ -79,9 +79,16 @@ class GraphRider(Agent):
             current = self.route[self.route_index]
             next_node = self.route[self.route_index + 1]
 
-            travel_time, battery_cost = self.model.city_graph.edge_cost(
+            travel_time, battery_cost, is_ferry = self.model.city_graph.edge_cost(
                 current, next_node
             )
+
+            # Weather slows riding and drains more battery, but ferries run on
+            # schedule and consume no battery, so they are left unaffected.
+            if not is_ferry:
+                travel_time *= self.model.weather.travel_time_factor
+                battery_cost *= self.model.weather.battery_factor
+
             edge_remaining = travel_time - self.time_into_edge
 
             step_time = min(remaining, edge_remaining)

@@ -7,12 +7,13 @@ from src.environment.city_graph import CityGraph
 from src.environment.locker_data import load_locker_records
 from src.environment.ferry_data import load_ferry_records
 from src.environment.demand import DemandModel
+from src.environment.weather import Weather
 from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
 from src.utils.config import (
     DEFAULT_BATTERY_LEVEL, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION,
     DEFAULT_SPEED_KMH, TIME_STEP_SECONDS, DEFAULT_CHARGE_TIME,
-    MAX_LOCKER_SNAP_METERS,
+    MAX_LOCKER_SNAP_METERS, DEFAULT_WEATHER,
     MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_ARRIVED, MODE_STRANDED,
 )
 
@@ -25,6 +26,7 @@ class GraphBatterySwapModel(Model):
         locker_csv=None,
         hotspot_csv=None,
         ferry_csv=None,
+        weather=DEFAULT_WEATHER,
         seconds_per_step=TIME_STEP_SECONDS,
         rider_speed_kmh=DEFAULT_SPEED_KMH,
     ):
@@ -34,6 +36,7 @@ class GraphBatterySwapModel(Model):
         self.current_step = 0
         self.seconds_per_step = seconds_per_step
         self.rider_speed_kmh = rider_speed_kmh
+        self.weather = Weather(weather)
 
         # Give every edge a travel_time and battery_cost (routing uses the
         # fastest path). Ferries are added afterwards with their own costs.
@@ -220,6 +223,7 @@ class GraphBatterySwapModel(Model):
         self.history.append({
             "step": self.current_step,
             "elapsed_minutes": self.current_step * self.seconds_per_step / 60,
+            "weather": self.weather.condition,
             "swap_count": self.swap_count,
             "failed_swaps": self.failed_swaps,
             "completed_trips": self.completed_trips,

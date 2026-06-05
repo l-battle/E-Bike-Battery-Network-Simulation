@@ -79,19 +79,23 @@ class CityGraph:
             data["battery_cost"] = length * consumption_rate
 
     def edge_cost(self, u, v):
-        """(travel_time, battery_cost) for the fastest edge between u and v.
+        """(travel_time, battery_cost, is_ferry) for the fastest edge u->v.
 
         Picks the parallel edge with the smallest travel_time, matching how
         shortest_path chooses among parallel edges.
         """
         edge_data = self.graph.get_edge_data(u, v)
         if not edge_data:
-            return 0.0, 0.0
+            return 0.0, 0.0, False
         best = min(
             edge_data.values(),
             key=lambda d: d.get("travel_time", float("inf")),
         )
-        return best.get("travel_time", 0.0), best.get("battery_cost", 0.0)
+        return (
+            best.get("travel_time", 0.0),
+            best.get("battery_cost", 0.0),
+            bool(best.get("is_ferry", False)),
+        )
 
     def add_ferry_routes(self, records):
         """Add ferry crossings as bidirectional edges.
