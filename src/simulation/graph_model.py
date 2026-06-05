@@ -7,15 +7,25 @@ from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
 from src.utils.config import (
     DEFAULT_BATTERY_LEVEL, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION,
+    DEFAULT_SPEED_KMH, TIME_STEP_SECONDS,
     MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_ARRIVED, MODE_STRANDED,
 )
 
 class GraphBatterySwapModel(Model):
-    def __init__(self, place_name="Amsterdam, Netherlands", n_riders=10, n_lockers=5):
+    def __init__(
+        self,
+        place_name="Amsterdam, Netherlands",
+        n_riders=10,
+        n_lockers=5,
+        seconds_per_step=TIME_STEP_SECONDS,
+        rider_speed_kmh=DEFAULT_SPEED_KMH,
+    ):
         super().__init__()
 
         self.city_graph = CityGraph(place_name, network_type='bike')
         self.current_step = 0
+        self.seconds_per_step = seconds_per_step
+        self.rider_speed_kmh = rider_speed_kmh
 
         nodes = list(self.city_graph.graph.nodes)
         self.graph_lockers = []
@@ -53,6 +63,7 @@ class GraphBatterySwapModel(Model):
                 battery_level=DEFAULT_BATTERY_LEVEL,
                 battery_threshold=DEFAULT_BATTERY_THRESHOLD,
                 consumption_rate=DEFAULT_CONSUMPTION,
+                speed_kmh=self.rider_speed_kmh,
             )
 
             self.agents.add(rider)
@@ -140,6 +151,7 @@ class GraphBatterySwapModel(Model):
 
         self.history.append({
             "step": self.current_step,
+            "elapsed_minutes": self.current_step * self.seconds_per_step / 60,
             "swap_count": self.swap_count,
             "failed_swaps": self.failed_swaps,
             "completed_trips": self.completed_trips,

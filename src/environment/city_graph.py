@@ -35,6 +35,17 @@ class CityGraph:
     def node_coordinates(self, node):
         data = self.graph.nodes[node]
         return data['x'], data['y']
+
+    def edge_length(self, u, v):
+        """Length in metres of the edge between u and v.
+
+        OSM graphs are multigraphs, so parallel edges can exist; we take the
+        shortest, matching how shortest_path weights edges by 'length'.
+        """
+        edge_data = self.graph.get_edge_data(u, v)
+        if not edge_data:
+            return 0.0
+        return min(d.get("length", 0.0) for d in edge_data.values())
         
     def random_reachable_node_pair(self, max_attempts=100):
         nodes = list(self.graph.nodes)
