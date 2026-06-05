@@ -1,6 +1,10 @@
-DEFAULT_BATTERY_LEVEL = 100
-DEFAULT_BATTERY_THRESHOLD = 20
-DEFAULT_CONSUMPTION = 0.005
+# Battery model in physical units (watt-hours), so values are checkable
+# against real specs. See docs/calibration.md. Best estimates pending real
+# data: 500 Wh capacity at 12 Wh/km -> ~42 km full range, ~33 km to threshold.
+BATTERY_CAPACITY_WH = 500.0
+CONSUMPTION_WH_PER_KM = 12.0
+BATTERY_THRESHOLD_FRACTION = 0.20
+BATTERY_THRESHOLD_WH = BATTERY_CAPACITY_WH * BATTERY_THRESHOLD_FRACTION
 
 # Time / speed model
 TIME_STEP_SECONDS = 10      # simulated seconds elapsed per model step
@@ -13,14 +17,14 @@ DEFAULT_SPEED_KMH = 18      # rider cruising speed (e-bike)
 DEFAULT_WEATHER = "clear"
 WEATHER_PRESETS = {
     "clear": {"travel_time_factor": 1.00, "battery_factor": 1.00},
-    "rain":  {"travel_time_factor": 1.25, "battery_factor": 1.15},
-    "wind":  {"travel_time_factor": 1.10, "battery_factor": 1.25},
-    "snow":  {"travel_time_factor": 1.60, "battery_factor": 1.35},
-    "heat":  {"travel_time_factor": 1.05, "battery_factor": 1.10},
+    "rain":  {"travel_time_factor": 1.12, "battery_factor": 1.08},
+    "wind":  {"travel_time_factor": 1.05, "battery_factor": 1.20},
+    "snow":  {"travel_time_factor": 1.45, "battery_factor": 1.30},
+    "heat":  {"travel_time_factor": 1.03, "battery_factor": 1.05},
 }
 
 # Locker battery economy
-DEFAULT_CHARGE_SECONDS = 3 * 3600     # time to recharge one depleted battery
+DEFAULT_CHARGE_SECONDS = int(3.5 * 3600)   # time to recharge one depleted battery
 DEFAULT_CHARGED_BATTERIES = 5         # charged batteries a locker starts with
 DEFAULT_LOCKER_CAPACITY = 10          # max total batteries (charged + depleted)
 

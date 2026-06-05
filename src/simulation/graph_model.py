@@ -11,7 +11,7 @@ from src.environment.weather import Weather
 from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
 from src.utils.config import (
-    DEFAULT_BATTERY_LEVEL, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION,
+    BATTERY_CAPACITY_WH, BATTERY_THRESHOLD_WH, CONSUMPTION_WH_PER_KM,
     DEFAULT_SPEED_KMH, TIME_STEP_SECONDS, DEFAULT_CHARGE_SECONDS,
     DEFAULT_CHARGED_BATTERIES, DEFAULT_LOCKER_CAPACITY,
     MAX_LOCKER_SNAP_METERS, DEFAULT_WEATHER,
@@ -41,7 +41,7 @@ class GraphBatterySwapModel(Model):
 
         # Give every edge a travel_time and battery_cost (routing uses the
         # fastest path). Ferries are added afterwards with their own costs.
-        self.city_graph.annotate_travel_costs(rider_speed_kmh, DEFAULT_CONSUMPTION)
+        self.city_graph.annotate_travel_costs(rider_speed_kmh, CONSUMPTION_WH_PER_KM)
         if ferry_csv is not None:
             self.city_graph.add_ferry_routes(load_ferry_records(ferry_csv))
 
@@ -79,8 +79,8 @@ class GraphBatterySwapModel(Model):
                 rider_id=i,
                 current_node=origin,
                 destination_node=destination,
-                battery_level=DEFAULT_BATTERY_LEVEL,
-                battery_threshold=DEFAULT_BATTERY_THRESHOLD,
+                battery_level=BATTERY_CAPACITY_WH,
+                battery_threshold=BATTERY_THRESHOLD_WH,
             )
 
             self.agents.add(rider)

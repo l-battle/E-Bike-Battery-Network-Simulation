@@ -44,7 +44,7 @@ def plot_average_battery(df):
     plt.plot(df[X_COLUMN], df["avg_battery"])
 
     plt.xlabel(X_LABEL)
-    plt.ylabel("Average battery level")
+    plt.ylabel("Average battery (Wh)")
     plt.title("Average Rider Battery Over Time")
 
 

@@ -1,5 +1,11 @@
 # Calibration Reference
 
+> **Status (beta):** real-world data is not yet available. `config.py` now
+> adopts the **Recommended** best-estimate values below (physical battery model
+> in Wh, refined weather/ferry/charge values). These are documented estimates,
+> not measured values — to be replaced with real company data later, after
+> which this doc and `config.py` get updated together.
+
 The values that make this simulation realistic, where they come from, and how
 confident we are in each. This is the source of truth for config parameters;
 update `src/utils/config.py` (and the CSVs) to match the **Recommended** column,

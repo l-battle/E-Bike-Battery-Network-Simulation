@@ -62,12 +62,13 @@ class CityGraph:
             weight='travel_time'
         )
 
-    def annotate_travel_costs(self, speed_kmh, consumption_rate):
-        """Give every edge a travel_time (seconds) and battery_cost.
+    def annotate_travel_costs(self, speed_kmh, consumption_wh_per_km):
+        """Give every edge a travel_time (seconds) and battery_cost (Wh).
 
-        Normal edges derive both from their length: travel_time = length /
-        speed, battery_cost = length * consumption_rate. Special edges (e.g.
-        ferries) set their own values and are left untouched.
+        Normal edges derive both from their length (metres): travel_time =
+        length / speed, battery_cost = (length / 1000) * consumption_wh_per_km.
+        Special edges (e.g. ferries) set their own values and are left
+        untouched.
         """
         metres_per_second = speed_kmh * 1000 / 3600
 
@@ -76,7 +77,7 @@ class CityGraph:
                 continue
             length = data.get("length", 0.0)
             data["travel_time"] = length / metres_per_second
-            data["battery_cost"] = length * consumption_rate
+            data["battery_cost"] = (length / 1000.0) * consumption_wh_per_km
 
     def edge_cost(self, u, v):
         """(travel_time, battery_cost, is_ferry) for the fastest edge u->v.

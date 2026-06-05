@@ -3,8 +3,8 @@ from src.utils.config import (
     MODE_DELIVERING,
     MODE_SEEKING_LOCKER,
     MODE_STRANDED,
-    DEFAULT_BATTERY_THRESHOLD,
-    DEFAULT_BATTERY_LEVEL,
+    BATTERY_CAPACITY_WH,
+    BATTERY_THRESHOLD_WH,
 )
 
 
@@ -15,8 +15,8 @@ class GraphRider(Agent):
         rider_id,
         current_node,
         destination_node,
-        battery_level=DEFAULT_BATTERY_LEVEL,
-        battery_threshold=DEFAULT_BATTERY_THRESHOLD,
+        battery_level=BATTERY_CAPACITY_WH,
+        battery_threshold=BATTERY_THRESHOLD_WH,
     ):
         super().__init__(model)
 
@@ -129,7 +129,7 @@ class GraphRider(Agent):
         self.target_locker.charged_batteries -= 1
         self.target_locker.add_depleted_battery()
 
-        self.battery_level = DEFAULT_BATTERY_LEVEL
+        self.battery_level = BATTERY_CAPACITY_WH
         self.target_locker = None
         self.mode = MODE_DELIVERING
 

@@ -100,7 +100,7 @@ def plot_graph_rider_snapshot(
             location=[current_y, current_x],
             popup=(
                 f"Rider {rider.rider_id}<br>"
-                f"Battery: {rider.battery_level:.1f}<br>"
+                f"Battery: {rider.battery_level:.0f} Wh<br>"
                 f"Mode: {rider.mode}"
             ),
             icon=folium.Icon(color="blue")
