@@ -30,10 +30,16 @@ class GraphBatterySwapModel(Model):
         weather=DEFAULT_WEATHER,
         seconds_per_step=TIME_STEP_SECONDS,
         rider_speed_kmh=DEFAULT_SPEED_KMH,
+        city_graph=None,
     ):
         super().__init__()
 
-        self.city_graph = CityGraph(place_name, network_type='bike')
+        # A prebuilt CityGraph can be injected (tests, or to reuse one loaded
+        # graph across many runs); otherwise it is built from place_name.
+        self.city_graph = (
+            city_graph if city_graph is not None
+            else CityGraph(place_name, network_type='bike')
+        )
         self.current_step = 0
         self.seconds_per_step = seconds_per_step
         self.rider_speed_kmh = rider_speed_kmh

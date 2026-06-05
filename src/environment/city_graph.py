@@ -5,10 +5,12 @@ import networkx as nx
 import random
 
 class CityGraph:
-    def __init__(self, place_name, network_type='bike'):
+    def __init__(self, place_name=None, network_type='bike', graph=None):
         self.place_name = place_name
         self.network_type = network_type
-        self.graph = self._load_graph()
+        # An explicit graph can be injected (tests, or reusing a loaded graph
+        # across runs); otherwise it is downloaded from OSM.
+        self.graph = graph if graph is not None else self._load_graph()
 
     def _load_graph(self):
         ox.settings.use_cache = True
