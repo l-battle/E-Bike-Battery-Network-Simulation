@@ -1,0 +1,11 @@
+locker_id,name,lat,lon,charged_batteries,capacity
+0,De Pijp,52.3530,4.8920,5,10
+1,RAI,52.3410,4.8890,5,10
+2,Noord,52.3900,4.9180,5,10
+3,Bijlmer ArenA 1,52.3120,4.9470,5,10
+4,Bijlmer ArenA 2,52.3135,4.9460,5,10
+5,Sloterdijk,52.3890,4.8370,5,10
+6,West,52.3760,4.8650,5,10
+7,Centraal,52.3791,4.9003,5,10
+8,Centrum,52.3730,4.8926,5,10
+9,Oost,52.3600,4.9220,5,10

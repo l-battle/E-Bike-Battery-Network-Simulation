@@ -1,3 +1,5 @@
+import math
+
 import osmnx as ox
 import networkx as nx
 import random
@@ -28,7 +30,28 @@ class CityGraph:
         return graph
         
     def nearest_node(self, x, y):
-        return ox.distance.nearest_nodes(self.graph, X=x, Y=y)
+        """Return the graph node closest to longitude x, latitude y.
+
+        Uses an equirectangular approximation (good for city scale) so it
+        works on the unprojected lat/lon graph without extra dependencies.
+        """
+        lon0 = math.radians(x)
+        lat0 = math.radians(y)
+        cos_lat0 = math.cos(lat0)
+
+        best_node = None
+        best_sq_dist = float("inf")
+
+        for node, data in self.graph.nodes(data=True):
+            dlon = math.radians(data["x"]) - lon0
+            dlat = math.radians(data["y"]) - lat0
+            sq_dist = (dlon * cos_lat0) ** 2 + dlat ** 2
+
+            if sq_dist < best_sq_dist:
+                best_sq_dist = sq_dist
+                best_node = node
+
+        return best_node
         
     def shortest_path(self, origin_node, destination_node):
         return nx.shortest_path(

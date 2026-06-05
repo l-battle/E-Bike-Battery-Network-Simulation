@@ -3,11 +3,12 @@ import random
 import networkx as nx
 
 from src.environment.city_graph import CityGraph
+from src.environment.locker_data import load_locker_records
 from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
 from src.utils.config import (
     DEFAULT_BATTERY_LEVEL, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION,
-    DEFAULT_SPEED_KMH, TIME_STEP_SECONDS,
+    DEFAULT_SPEED_KMH, TIME_STEP_SECONDS, DEFAULT_CHARGE_TIME,
     MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_ARRIVED, MODE_STRANDED,
 )
 
@@ -17,6 +18,7 @@ class GraphBatterySwapModel(Model):
         place_name="Amsterdam, Netherlands",
         n_riders=10,
         n_lockers=5,
+        locker_csv=None,
         seconds_per_step=TIME_STEP_SECONDS,
         rider_speed_kmh=DEFAULT_SPEED_KMH,
     ):
@@ -27,7 +29,6 @@ class GraphBatterySwapModel(Model):
         self.seconds_per_step = seconds_per_step
         self.rider_speed_kmh = rider_speed_kmh
 
-        nodes = list(self.city_graph.graph.nodes)
         self.graph_lockers = []
 
         self.swap_count = 0
@@ -35,23 +36,12 @@ class GraphBatterySwapModel(Model):
         self.completed_trips = 0
         self.stranded_count = 0
 
-        self.history = []       
+        self.history = []
 
-        for i in range(n_lockers):
-            locker_node = random.choice(nodes)
-
-            locker = GraphLocker(
-                self,
-                locker_id=i,
-                node_id=locker_node,
-                charged_batteries=5,
-                charge_time=10,
-            )
-
-            self.graph_lockers.append(locker)
-            self.agents.add(locker)
-
-        origin, destination = self.city_graph.random_reachable_node_pair()
+        if locker_csv is not None:
+            self._create_lockers_from_csv(locker_csv)
+        else:
+            self._create_random_lockers(n_lockers)
 
         for i in range(n_riders):
             origin, destination = self.city_graph.random_reachable_node_pair()
@@ -67,6 +57,33 @@ class GraphBatterySwapModel(Model):
             )
 
             self.agents.add(rider)
+
+    def _add_locker(self, locker_id, node_id, charged_batteries):
+        locker = GraphLocker(
+            self,
+            locker_id=locker_id,
+            node_id=node_id,
+            charged_batteries=charged_batteries,
+            charge_time=DEFAULT_CHARGE_TIME,
+        )
+        self.graph_lockers.append(locker)
+        self.agents.add(locker)
+
+    def _create_random_lockers(self, n_lockers):
+        nodes = list(self.city_graph.graph.nodes)
+        for i in range(n_lockers):
+            self._add_locker(i, random.choice(nodes), charged_batteries=5)
+
+    def _create_lockers_from_csv(self, csv_path):
+        records = load_locker_records(csv_path)
+        for record in records:
+            # Snap the real lat/lon to the nearest graph node.
+            node_id = self.city_graph.nearest_node(x=record["lon"], y=record["lat"])
+            self._add_locker(
+                record["locker_id"],
+                node_id,
+                charged_batteries=record["charged_batteries"],
+            )
 
     def step(self):
         self.current_step += 1
