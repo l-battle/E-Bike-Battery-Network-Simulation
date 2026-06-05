@@ -5,6 +5,7 @@ import networkx as nx
 
 from src.environment.city_graph import CityGraph
 from src.environment.locker_data import load_locker_records
+from src.environment.ferry_data import load_ferry_records
 from src.environment.demand import DemandModel
 from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
@@ -23,6 +24,7 @@ class GraphBatterySwapModel(Model):
         n_lockers=5,
         locker_csv=None,
         hotspot_csv=None,
+        ferry_csv=None,
         seconds_per_step=TIME_STEP_SECONDS,
         rider_speed_kmh=DEFAULT_SPEED_KMH,
     ):
@@ -32,6 +34,12 @@ class GraphBatterySwapModel(Model):
         self.current_step = 0
         self.seconds_per_step = seconds_per_step
         self.rider_speed_kmh = rider_speed_kmh
+
+        # Give every edge a travel_time and battery_cost (routing uses the
+        # fastest path). Ferries are added afterwards with their own costs.
+        self.city_graph.annotate_travel_costs(rider_speed_kmh, DEFAULT_CONSUMPTION)
+        if ferry_csv is not None:
+            self.city_graph.add_ferry_routes(load_ferry_records(ferry_csv))
 
         # Demand model (None = uniform random spawn/destinations)
         self.demand = None
@@ -69,8 +77,6 @@ class GraphBatterySwapModel(Model):
                 destination_node=destination,
                 battery_level=DEFAULT_BATTERY_LEVEL,
                 battery_threshold=DEFAULT_BATTERY_THRESHOLD,
-                consumption_rate=DEFAULT_CONSUMPTION,
-                speed_kmh=self.rider_speed_kmh,
             )
 
             self.agents.add(rider)
@@ -138,7 +144,7 @@ class GraphBatterySwapModel(Model):
 
     def nearest_available_locker(self, current_node):
         best_locker = None
-        best_distance = float("inf")
+        best_time = float("inf")
 
         for agent in self.agents:
             if isinstance(agent, GraphLocker):
@@ -148,15 +154,15 @@ class GraphBatterySwapModel(Model):
                     continue
 
                 try:
-                    distance = nx.shortest_path_length(
+                    travel_time = nx.shortest_path_length(
                         self.city_graph.graph,
                         current_node,
                         agent.node_id,
-                        weight="length",
+                        weight="travel_time",
                     )
 
-                    if distance < best_distance:
-                        best_distance = distance
+                    if travel_time < best_time:
+                        best_time = travel_time
                         best_locker = agent
 
                 except nx.NetworkXNoPath:

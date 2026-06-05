@@ -5,8 +5,6 @@ from src.utils.config import (
     MODE_STRANDED,
     DEFAULT_BATTERY_THRESHOLD,
     DEFAULT_BATTERY_LEVEL,
-    DEFAULT_CONSUMPTION,
-    DEFAULT_SPEED_KMH,
 )
 
 
@@ -19,8 +17,6 @@ class GraphRider(Agent):
         destination_node,
         battery_level=DEFAULT_BATTERY_LEVEL,
         battery_threshold=DEFAULT_BATTERY_THRESHOLD,
-        consumption_rate=DEFAULT_CONSUMPTION,
-        speed_kmh=DEFAULT_SPEED_KMH,
     ):
         super().__init__(model)
 
@@ -30,22 +26,15 @@ class GraphRider(Agent):
 
         self.battery_level = battery_level
         self.battery_threshold = battery_threshold
-        self.consumption_rate = consumption_rate
-        self.speed_kmh = speed_kmh
 
         self.target_locker = None
         self.mode = MODE_DELIVERING
 
-        # Metres already travelled along the edge from the current node toward
-        # the next node in the route. Lets a rider stop partway down an edge.
-        self.dist_into_edge = 0.0
+        # Seconds already spent on the edge from the current node toward the
+        # next node in the route. Lets a rider stop partway along an edge.
+        self.time_into_edge = 0.0
 
         self.set_route(self.trip_destination_node)
-
-    def distance_per_step(self):
-        """Metres the rider can travel in one model step at its speed."""
-        metres_per_second = self.speed_kmh * 1000 / 3600
-        return metres_per_second * self.model.seconds_per_step
 
     def step(self):
         if self.mode == MODE_STRANDED:
@@ -75,23 +64,30 @@ class GraphRider(Agent):
             self.mode = MODE_SEEKING_LOCKER
             self.set_route(self.target_locker.node_id)
 
-        # Move along the route by this step's travel distance
-        self._advance(self.distance_per_step())
+        # Advance along the route using this step's time budget
+        self._advance(self.model.seconds_per_step)
 
-    def _advance(self, distance):
-        """Travel `distance` metres along the route, spanning edges as needed."""
-        remaining = distance
+    def _advance(self, time_budget):
+        """Travel for `time_budget` seconds along the route, spanning edges.
+
+        Battery is drained in proportion to the fraction of each edge covered,
+        so partial traversals (and zero-battery-cost ferry edges) are handled.
+        """
+        remaining = time_budget
 
         while remaining > 1e-9 and self.route_index < len(self.route) - 1:
             current = self.route[self.route_index]
             next_node = self.route[self.route_index + 1]
 
-            edge_length = self.model.city_graph.edge_length(current, next_node)
-            edge_remaining = edge_length - self.dist_into_edge
+            travel_time, battery_cost = self.model.city_graph.edge_cost(
+                current, next_node
+            )
+            edge_remaining = travel_time - self.time_into_edge
 
-            travel = min(remaining, edge_remaining)
+            step_time = min(remaining, edge_remaining)
+            fraction = step_time / travel_time if travel_time > 0 else 1.0
 
-            self.battery_level -= travel * self.consumption_rate
+            self.battery_level -= fraction * battery_cost
 
             if self.battery_level <= 0:
                 self.battery_level = 0
@@ -100,14 +96,14 @@ class GraphRider(Agent):
                 self.model.stranded_count += 1
                 return
 
-            self.dist_into_edge += travel
-            remaining -= travel
+            self.time_into_edge += step_time
+            remaining -= step_time
 
             # Reached the next node
-            if self.dist_into_edge >= edge_length - 1e-9:
+            if self.time_into_edge >= travel_time - 1e-9:
                 self.route_index += 1
                 self.current_node = next_node
-                self.dist_into_edge = 0.0
+                self.time_into_edge = 0.0
 
     def try_swap(self):
         if self.target_locker is None:
@@ -154,4 +150,4 @@ class GraphRider(Agent):
             destination_node,
         )
         self.route_index = 0
-        self.dist_into_edge = 0.0
+        self.time_into_edge = 0.0

@@ -6,6 +6,7 @@ model = GraphBatterySwapModel(
     n_riders=15,
     locker_csv="data/lockers_amsterdam.csv",
     hotspot_csv="data/hotspots_amsterdam.csv",
+    ferry_csv="data/ferries_amsterdam.csv",
 )
 
 for _ in range(1000):

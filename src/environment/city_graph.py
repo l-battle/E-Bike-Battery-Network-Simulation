@@ -54,12 +54,70 @@ class CityGraph:
         return best_node
         
     def shortest_path(self, origin_node, destination_node):
+        # Route by travel time -> the fastest path, not merely the shortest.
         return nx.shortest_path(
-            self.graph, 
+            self.graph,
             origin_node,
             destination_node,
-            weight='length'
+            weight='travel_time'
         )
+
+    def annotate_travel_costs(self, speed_kmh, consumption_rate):
+        """Give every edge a travel_time (seconds) and battery_cost.
+
+        Normal edges derive both from their length: travel_time = length /
+        speed, battery_cost = length * consumption_rate. Special edges (e.g.
+        ferries) set their own values and are left untouched.
+        """
+        metres_per_second = speed_kmh * 1000 / 3600
+
+        for _, _, data in self.graph.edges(data=True):
+            if data.get("is_ferry"):
+                continue
+            length = data.get("length", 0.0)
+            data["travel_time"] = length / metres_per_second
+            data["battery_cost"] = length * consumption_rate
+
+    def edge_cost(self, u, v):
+        """(travel_time, battery_cost) for the fastest edge between u and v.
+
+        Picks the parallel edge with the smallest travel_time, matching how
+        shortest_path chooses among parallel edges.
+        """
+        edge_data = self.graph.get_edge_data(u, v)
+        if not edge_data:
+            return 0.0, 0.0
+        best = min(
+            edge_data.values(),
+            key=lambda d: d.get("travel_time", float("inf")),
+        )
+        return best.get("travel_time", 0.0), best.get("battery_cost", 0.0)
+
+    def add_ferry_routes(self, records):
+        """Add ferry crossings as bidirectional edges.
+
+        Each record needs from/to lat-lon, plus crossing and wait seconds.
+        Ferry edges consume no battery and their travel_time is the crossing
+        time plus the average wait. Endpoints snap to the nearest graph nodes.
+        """
+        for record in records:
+            from_node = self.nearest_node(x=record["from_lon"], y=record["from_lat"])
+            to_node = self.nearest_node(x=record["to_lon"], y=record["to_lat"])
+
+            travel_time = record["crossing_seconds"] + record["wait_seconds"]
+            length = self.distance_to_node(
+                to_node, x=record["from_lon"], y=record["from_lat"]
+            )
+
+            for a, b in ((from_node, to_node), (to_node, from_node)):
+                self.graph.add_edge(
+                    a, b,
+                    length=length,
+                    travel_time=travel_time,
+                    battery_cost=0.0,
+                    is_ferry=True,
+                    name=record.get("name", "ferry"),
+                )
         
     def node_coordinates(self, node):
         data = self.graph.nodes[node]
