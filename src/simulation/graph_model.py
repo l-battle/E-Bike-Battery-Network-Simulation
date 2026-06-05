@@ -1,12 +1,14 @@
 from mesa import Model
 import random
+import networkx as nx
 
 from src.environment.city_graph import CityGraph
 from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
-
-from src.agents.graph_locker import GraphLocker
-import networkx as nx
+from src.utils.config import (
+    DEFAULT_BATTERY_LEVEL, DEFAULT_BATTERY_THRESHOLD, DEFAULT_CONSUMPTION,
+    MODE_DELIVERING, MODE_SEEKING_LOCKER, MODE_ARRIVED, MODE_STRANDED,
+)
 
 class GraphBatterySwapModel(Model):
     def __init__(self, place_name="Amsterdam, Netherlands", n_riders=10, n_lockers=5):
@@ -48,9 +50,9 @@ class GraphBatterySwapModel(Model):
                 rider_id=i,
                 current_node=origin,
                 destination_node=destination,
-                battery_level=30,
-                battery_threshold=20,
-                consumption_rate=0.005,
+                battery_level=DEFAULT_BATTERY_LEVEL,
+                battery_threshold=DEFAULT_BATTERY_THRESHOLD,
+                consumption_rate=DEFAULT_CONSUMPTION,
             )
 
             self.agents.add(rider)
@@ -106,22 +108,17 @@ class GraphBatterySwapModel(Model):
         )
 
         active_riders = sum(
-            rider.mode == "delivering"
+            rider.mode == MODE_DELIVERING
             for rider in riders
         )
 
         seeking_riders = sum(
-            rider.mode == "seeking_locker"
-            for rider in riders
-        )
-
-        arrived_riders = sum(
-            rider.mode == "arrived"
+            rider.mode == MODE_SEEKING_LOCKER
             for rider in riders
         )
 
         stranded_riders = sum(
-            rider.mode == "stranded"
+            rider.mode == MODE_STRANDED
             for rider in riders
         )
 
@@ -150,7 +147,6 @@ class GraphBatterySwapModel(Model):
             "avg_battery": avg_battery,
             "active_riders": active_riders,
             "seeking_riders": seeking_riders,
-            "arrived_riders": arrived_riders,
             "stranded_riders": stranded_riders,
             "total_charged_batteries": total_charged,
             "total_depleted_batteries": total_depleted,
