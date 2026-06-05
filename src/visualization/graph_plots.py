@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Shared x-axis for all time series. The simulation is time-based, so we plot
-# against elapsed simulated time rather than raw step index.
-X_COLUMN = "elapsed_minutes"
-X_LABEL = "Elapsed time (minutes)"
+# Shared x-axis for all time series. Switch these two constants to change
+# what every plot is drawn against, e.g.:
+#   X_COLUMN, X_LABEL = "elapsed_minutes", "Elapsed time (minutes)"
+X_COLUMN = "step"
+X_LABEL = "Simulation step"
 
 
 def history_to_dataframe(model):
