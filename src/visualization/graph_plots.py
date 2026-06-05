@@ -47,7 +47,6 @@ def plot_rider_status_counts(df):
 
     plt.plot(df["step"], df["active_riders"], label="Delivering")
     plt.plot(df["step"], df["seeking_riders"], label="Seeking locker")
-    plt.plot(df["step"], df["arrived_riders"], label="Arrived")
     plt.plot(df["step"], df["stranded_riders"], label="Stranded")
 
     plt.xlabel("Simulation step")
