@@ -78,6 +78,38 @@ def plot_locker_inventory(df):
     plt.legend()
 
 
+def plot_weather_comparison(results, metrics=None):
+    """Grouped bar charts comparing outcomes across weather conditions.
+
+    `results` maps a weather label to a metrics dict (typically the final
+    history row of a run), e.g. {"clear": {...}, "rain": {...}}.
+    """
+    if metrics is None:
+        metrics = [
+            "completed_trips",
+            "swap_count",
+            "stranded_count",
+            "avg_battery",
+        ]
+
+    labels = list(results.keys())
+
+    fig, axes = plt.subplots(1, len(metrics), figsize=(4 * len(metrics), 4))
+    if len(metrics) == 1:
+        axes = [axes]
+
+    for ax, metric in zip(axes, metrics):
+        values = [results[label].get(metric, 0) for label in labels]
+        ax.bar(labels, values, color="tab:blue")
+        ax.set_title(metric.replace("_", " ").title())
+        ax.set_xlabel("Weather")
+        ax.tick_params(axis="x", rotation=45)
+
+    fig.suptitle("Outcomes by Weather Condition")
+    fig.tight_layout()
+    return fig
+
+
 def show_all_graph_metrics(model):
     df = history_to_dataframe(model)
 
