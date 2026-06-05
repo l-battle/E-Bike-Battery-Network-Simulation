@@ -1,7 +1,44 @@
 import folium
+from folium.plugins import HeatMap
 
 from src.agents.graph_rider import GraphRider
 from src.agents.graph_locker import GraphLocker
+
+
+def add_hotspot_layer(m, model):
+    """Add a toggleable demand heatmap + centre markers from the demand model.
+
+    Renders the actual demand surface the simulation samples from: every zone
+    node, weighted by its Gaussian falloff times the hotspot's demand weight.
+    """
+    if getattr(model, "demand", None) is None:
+        return
+
+    heat_data = []
+    centers = folium.FeatureGroup(name="Hotspot centres", show=True)
+
+    for hotspot in model.demand.hotspots:
+        for node, node_weight in zip(hotspot["zone_nodes"], hotspot["zone_weights"]):
+            x, y = model.city_graph.node_coordinates(node)
+            heat_data.append([y, x, node_weight * hotspot["weight"]])
+
+        # A labelled marker at the (weighted) centre of the zone
+        cx = sum(model.city_graph.node_coordinates(n)[0] for n in hotspot["zone_nodes"]) / len(hotspot["zone_nodes"])
+        cy = sum(model.city_graph.node_coordinates(n)[1] for n in hotspot["zone_nodes"]) / len(hotspot["zone_nodes"])
+        folium.CircleMarker(
+            location=[cy, cx],
+            radius=6,
+            color="orange",
+            fill=True,
+            fill_opacity=0.8,
+            popup=f"{hotspot['name']} (weight {hotspot['weight']})",
+        ).add_to(centers)
+
+    heat_layer = folium.FeatureGroup(name="Demand heatmap", show=True)
+    HeatMap(heat_data, radius=18, blur=22, min_opacity=0.3).add_to(heat_layer)
+
+    heat_layer.add_to(m)
+    centers.add_to(m)
 
 
 def plot_graph_rider_snapshot(
@@ -83,6 +120,11 @@ def plot_graph_rider_snapshot(
                 ),
                 icon=folium.Icon(color="purple", icon="bolt", prefix="fa")
             ).add_to(m)
+
+    # Demand hotspots overlay (only if a demand model is configured)
+    add_hotspot_layer(m, model)
+
+    folium.LayerControl(collapsed=False).add_to(m)
 
     m.save(output_path)
     print(f"Saved graph rider snapshot to {output_path}")
