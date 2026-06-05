@@ -1,6 +1,11 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# Shared x-axis for all time series. The simulation is time-based, so we plot
+# against elapsed simulated time rather than raw step index.
+X_COLUMN = "elapsed_minutes"
+X_LABEL = "Elapsed time (minutes)"
+
 
 def history_to_dataframe(model):
     return pd.DataFrame(model.history)
@@ -9,12 +14,12 @@ def history_to_dataframe(model):
 def plot_system_outcomes(df):
     plt.figure()
 
-    plt.plot(df["step"], df["completed_trips"], label="Completed trips")
-    plt.plot(df["step"], df["stranded_count"], label="Stranded riders")
-    plt.plot(df["step"], df["swap_count"], label="Successful swaps")
-    plt.plot(df["step"], df["failed_swaps"], label="Failed swaps")
+    plt.plot(df[X_COLUMN], df["completed_trips"], label="Completed trips")
+    plt.plot(df[X_COLUMN], df["stranded_count"], label="Stranded riders")
+    plt.plot(df[X_COLUMN], df["swap_count"], label="Successful swaps")
+    plt.plot(df[X_COLUMN], df["failed_swaps"], label="Failed swaps")
 
-    plt.xlabel("Simulation step")
+    plt.xlabel(X_LABEL)
     plt.ylabel("Count")
     plt.title("System Outcomes Over Time")
     plt.legend()
@@ -23,10 +28,10 @@ def plot_system_outcomes(df):
 def plot_battery_states(df):
     plt.figure()
 
-    plt.plot(df["step"], df["total_charged_batteries"], label="Charged batteries")
-    plt.plot(df["step"], df["total_depleted_batteries"], label="Depleted batteries")
+    plt.plot(df[X_COLUMN], df["total_charged_batteries"], label="Charged batteries")
+    plt.plot(df[X_COLUMN], df["total_depleted_batteries"], label="Depleted batteries")
 
-    plt.xlabel("Simulation step")
+    plt.xlabel(X_LABEL)
     plt.ylabel("Battery count")
     plt.title("Battery State Over Time")
     plt.legend()
@@ -35,9 +40,9 @@ def plot_battery_states(df):
 def plot_average_battery(df):
     plt.figure()
 
-    plt.plot(df["step"], df["avg_battery"])
+    plt.plot(df[X_COLUMN], df["avg_battery"])
 
-    plt.xlabel("Simulation step")
+    plt.xlabel(X_LABEL)
     plt.ylabel("Average battery level")
     plt.title("Average Rider Battery Over Time")
 
@@ -45,11 +50,11 @@ def plot_average_battery(df):
 def plot_rider_status_counts(df):
     plt.figure()
 
-    plt.plot(df["step"], df["active_riders"], label="Delivering")
-    plt.plot(df["step"], df["seeking_riders"], label="Seeking locker")
-    plt.plot(df["step"], df["stranded_riders"], label="Stranded")
+    plt.plot(df[X_COLUMN], df["active_riders"], label="Delivering")
+    plt.plot(df[X_COLUMN], df["seeking_riders"], label="Seeking locker")
+    plt.plot(df[X_COLUMN], df["stranded_riders"], label="Stranded")
 
-    plt.xlabel("Simulation step")
+    plt.xlabel(X_LABEL)
     plt.ylabel("Number of riders")
     plt.title("Rider Status Counts Over Time")
     plt.legend()
@@ -64,9 +69,9 @@ def plot_locker_inventory(df):
     ]
 
     for col in locker_columns:
-        plt.plot(df["step"], df[col], label=col)
+        plt.plot(df[X_COLUMN], df[col], label=col)
 
-    plt.xlabel("Simulation step")
+    plt.xlabel(X_LABEL)
     plt.ylabel("Charged batteries")
     plt.title("Locker Inventory Over Time")
     plt.legend()
