@@ -24,6 +24,7 @@ class GraphBatterySwapModel(Model):
         place_name="Amsterdam, Netherlands",
         n_riders=10,
         n_lockers=5,
+        locker_nodes=None,
         locker_csv=None,
         hotspot_csv=None,
         ferry_csv=None,
@@ -73,7 +74,9 @@ class GraphBatterySwapModel(Model):
 
         self.history = []
 
-        if locker_csv is not None:
+        if locker_nodes is not None:
+            self._create_lockers_from_nodes(locker_nodes)
+        elif locker_csv is not None:
             self._create_lockers_from_csv(locker_csv)
         else:
             self._create_random_lockers(n_lockers)
@@ -117,6 +120,15 @@ class GraphBatterySwapModel(Model):
         )
         self.graph_lockers.append(locker)
         self.agents.add(locker)
+
+    def _create_lockers_from_nodes(self, locker_nodes):
+        """Place lockers at an explicit set of graph nodes (a sampled layout)."""
+        for i, node in enumerate(locker_nodes):
+            self._add_locker(
+                i, node,
+                charged_batteries=DEFAULT_CHARGED_BATTERIES,
+                capacity=DEFAULT_LOCKER_CAPACITY,
+            )
 
     def _create_random_lockers(self, n_lockers):
         nodes = list(self.city_graph.graph.nodes)

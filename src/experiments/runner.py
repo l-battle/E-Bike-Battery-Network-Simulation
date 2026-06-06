@@ -67,13 +67,14 @@ def run_experiment(config: ExperimentConfig, base_graph=None):
     for _ in range(config.n_steps):
         model.step()
 
-    return {**config.to_dict(), **summarize(model, config)}
+    return {**config.to_dict(),
+            **summarize(model, config.warmup_steps, config.seconds_per_step)}
 
 
-def summarize(model, config: ExperimentConfig):
+def summarize(model, warmup_steps, seconds_per_step):
     """Normalised, steady-state metrics over the post-warmup window."""
     history = model.history
-    warmup = config.warmup_steps
+    warmup = warmup_steps
     end = history[-1]
     base = history[warmup - 1] if warmup > 0 else None
 
@@ -82,7 +83,7 @@ def summarize(model, config: ExperimentConfig):
 
     window = history[warmup:]
     window_steps = len(window)
-    hours = window_steps * config.seconds_per_step / 3600 if window_steps else 0
+    hours = window_steps * seconds_per_step / 3600 if window_steps else 0
 
     def per_hour(key):
         return delta(key) / hours if hours > 0 else 0.0
