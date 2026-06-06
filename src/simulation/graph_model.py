@@ -172,30 +172,26 @@ class GraphBatterySwapModel(Model):
         self.record_history()
 
     def nearest_available_locker(self, current_node):
+        available = [
+            agent for agent in self.agents
+            if isinstance(agent, GraphLocker) and agent.charged_batteries > 0
+        ]
+        if not available:
+            return None
+
+        # One Dijkstra from the rider gives travel time to every node; pick the
+        # nearest available locker from it (vs one Dijkstra per locker before).
+        distances = nx.single_source_dijkstra_path_length(
+            self.city_graph.graph, current_node, weight="travel_time"
+        )
+
         best_locker = None
         best_time = float("inf")
-
-        for agent in self.agents:
-            if isinstance(agent, GraphLocker):
-
-                # skip empty lockers
-                if agent.charged_batteries <= 0:
-                    continue
-
-                try:
-                    travel_time = nx.shortest_path_length(
-                        self.city_graph.graph,
-                        current_node,
-                        agent.node_id,
-                        weight="travel_time",
-                    )
-
-                    if travel_time < best_time:
-                        best_time = travel_time
-                        best_locker = agent
-
-                except nx.NetworkXNoPath:
-                    continue
+        for locker in available:
+            travel_time = distances.get(locker.node_id)
+            if travel_time is not None and travel_time < best_time:
+                best_time = travel_time
+                best_locker = locker
 
         return best_locker
     
