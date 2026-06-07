@@ -5,7 +5,6 @@ from src.experiments.candidate_sites import generate_candidate_sites
 from src.environment.city_graph import CityGraph
 from src.experiments.sampler import sample_experiments
 from src.experiments.driver import run_draw, run_dataset
-from src.experiments.features import compute_features
 
 # Feature + metric keys a complete row must contain.
 FEATURE_KEYS = {

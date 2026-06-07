@@ -13,12 +13,6 @@ from src.utils.config import MAX_LOCKER_SNAP_METERS
 FIELDNAMES = ["candidate_id", "node_id", "lat", "lon", "source"]
 
 
-def _node_distance(city_graph, a, b):
-    """Straight-line distance in metres between two graph nodes."""
-    x, y = city_graph.node_coordinates(b)
-    return city_graph.distance_to_node(a, x, y)
-
-
 def _demand_seed_nodes(demand):
     """One seed node per hotspot: the node closest to the hotspot centre.
 

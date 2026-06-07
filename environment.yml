@@ -1,0 +1,33 @@
+# Conda environment for the e-bike battery-swap simulation.
+# Create/update with:
+#   conda env create -f environment.yml      (first time)
+#   conda env update -f environment.yml      (after changes)
+#
+# IMPORTANT: install numpy/scipy/scikit-learn family via conda-forge (here),
+# NOT pip -- mixing the two corrupts the ABI (it broke this env once already).
+name: ebike-sim
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  # scientific stack (pinned to the known-good, ABI-consistent set)
+  - numpy=2.0.1
+  - scipy=1.17
+  - scikit-learn=1.8
+  - pandas
+  # geospatial / graph
+  - osmnx=2.1
+  - geopandas
+  - networkx
+  - shapely
+  - pyproj
+  # viz
+  - matplotlib
+  - folium
+  # dev / test
+  - pytest
+  - pyflakes
+  # pip-only packages
+  - pip
+  - pip:
+      - mesa==3.5.1

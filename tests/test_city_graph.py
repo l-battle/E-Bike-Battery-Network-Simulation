@@ -1,7 +1,6 @@
-import networkx as nx
 import pytest
 
-from tests.conftest import node_lonlat, build_grid_graph
+from tests.conftest import node_lonlat
 from src.environment.city_graph import CityGraph
 
 

@@ -4,7 +4,6 @@ from tests.conftest import build_grid_graph
 from src.environment.city_graph import CityGraph
 from src.simulation.graph_model import GraphBatterySwapModel
 from src.agents.graph_rider import GraphRider
-from src.agents.graph_locker import GraphLocker
 from src.utils.config import BATTERY_CAPACITY_WH, WEATHER_PRESETS
 
 

@@ -1,7 +1,5 @@
 import random
 
-import pytest
-
 from src.experiments.sampler import (
     DEFAULT_RANGES, sample_layout, sample_scenario, sample_experiments,
 )
