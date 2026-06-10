@@ -9,7 +9,15 @@ def _model_row(feats, feature_names):
     return X.reindex(columns=feature_names, fill_value=0)
 
 def greedy_optimize(candidate_sites, scenario, surrogate, objective,
-                    feature_names, city_graph, demand, budget, min_gain=0.0):
+                    feature_names, city_graph, demand, budget):
+    """Forward-greedy placement.
+
+    At each step adds the candidate that scores highest, building the full
+    budget-vs-score curve, then returns the best-scoring layout found (not
+    necessarily the full budget). Running to budget rather than stopping at the
+    first plateau is robust to a noisy surrogate and yields the diminishing-
+    returns curve in `history`.
+    """
     candidate_nodes = [c["node_id"] for c in candidate_sites]
 
     def score_layout(layout):
@@ -19,24 +27,27 @@ def greedy_optimize(candidate_sites, scenario, surrogate, objective,
         return objective.score(pred)
 
     chosen = []
-    current = score_layout(chosen)               # empty-layout baseline
-    history = [{"n_lockers": 0, "score": current, "layout": []}]
+    baseline = score_layout(chosen)              # empty-layout baseline
+    history = [{"n_lockers": 0, "score": baseline, "layout": []}]
+    best_layout, best_score = list(chosen), baseline
 
-    while len(chosen) < budget:
-        best_node, best_score = None, current
+    while len(chosen) < budget and len(chosen) < len(candidate_nodes):
+        step_node, step_score = None, float("-inf")
         for node in candidate_nodes:
             if node in chosen:
                 continue
             s = score_layout(chosen + [node])
-            if s > best_score:
-                best_node, best_score = node, s
+            if s > step_score:
+                step_node, step_score = node, s
 
-        if best_node is None or best_score - current <= min_gain:
-            break                                # adding nothing helps -> stop
-
-        chosen.append(best_node)
-        current = best_score
+        if step_node is None:
+            break
+        chosen.append(step_node)
         history.append({"n_lockers": len(chosen),
-                        "score": current, "layout": list(chosen)})
+                        "score": step_score, "layout": list(chosen)})
 
-    return chosen, history
+        if step_score > best_score:
+            best_score = step_score
+            best_layout = list(chosen)
+
+    return best_layout, history

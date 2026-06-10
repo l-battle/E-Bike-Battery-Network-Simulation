@@ -95,10 +95,9 @@ def test_fills_budget_when_more_is_better(candidates, feature_names,
 
 def test_stops_immediately_when_flat(candidates, feature_names,
                                      annotated_city, demand):
-    chosen, history = _run(ConstantScore(), candidates, feature_names,
-                           annotated_city, demand, budget=3)
-    assert chosen == []
-    assert len(history) == 1            # only the empty baseline
+    chosen, _ = _run(ConstantScore(), candidates, feature_names,
+                     annotated_city, demand, budget=3)
+    assert chosen == []                 # nothing beats the empty baseline
 
 
 def test_chosen_are_valid_candidates(candidates, feature_names,
