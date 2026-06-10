@@ -32,6 +32,7 @@ class GraphBatterySwapModel(Model):
         seconds_per_step=TIME_STEP_SECONDS,
         rider_speed_kmh=DEFAULT_SPEED_KMH,
         city_graph=None,
+        demand=None,
     ):
         super().__init__()
 
@@ -52,18 +53,23 @@ class GraphBatterySwapModel(Model):
         if ferry_csv is not None:
             self.city_graph.add_ferry_routes(load_ferry_records(ferry_csv))
 
-        # Demand model (None = uniform random spawn/destinations)
-        self.demand = None
-        if hotspot_csv is not None:
-            demand = DemandModel(self.city_graph, hotspot_csv)
-            if demand.is_active:
-                self.demand = demand
+        # Demand model (None = uniform random spawn/destinations). A prebuilt
+        # demand model can be injected to avoid rebuilding it every run.
+        if demand is not None:
+            self.demand = demand
+        elif hotspot_csv is not None:
+            dm = DemandModel(self.city_graph, hotspot_csv)
+            if dm.is_active:
+                self.demand = dm
             else:
                 warnings.warn(
                     "Hotspot CSV produced no usable hotspots; falling back to "
                     "uniform random spawn and destinations.",
                     stacklevel=2,
                 )
+                self.demand = None
+        else:
+            self.demand = None
 
         self.graph_lockers = []
 
