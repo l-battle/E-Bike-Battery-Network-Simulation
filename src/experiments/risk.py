@@ -45,6 +45,12 @@ def probability_exceeds(df, metric, threshold):
     return float((df[metric] > threshold).mean())
 
 
+def probability_below(df, metric, threshold):
+    """Risk metric: probability that `metric` falls below `threshold`
+    (e.g. probability of a loss when metric is profit and threshold is 0)."""
+    return float((df[metric] < threshold).mean())
+
+
 def value_at_risk(df, metric, quantile=0.90):
     """The metric value at a tail quantile -- a worst-case service level."""
     return float(df[metric].quantile(quantile))

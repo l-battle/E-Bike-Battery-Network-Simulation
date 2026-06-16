@@ -3,7 +3,8 @@ import pytest
 from tests.conftest import build_grid_graph
 from src.experiments.config import ExperimentConfig
 from src.experiments.risk import (
-    evaluate_decision, risk_profile, probability_exceeds, value_at_risk,
+    evaluate_decision, risk_profile, probability_exceeds, probability_below,
+    value_at_risk,
 )
 
 
@@ -46,6 +47,15 @@ def test_probability_exceeds_is_a_probability(base_graph):
     df = evaluate_decision(small_config(), seeds=range(5), base_graph=base_graph)
     p = probability_exceeds(df, "stranded_per_hour", threshold=0.0)
     assert 0.0 <= p <= 1.0
+
+
+def test_probability_below_complements_exceeds(base_graph):
+    df = evaluate_decision(small_config(), seeds=range(5), base_graph=base_graph)
+    below = probability_below(df, "stranded_per_hour", threshold=1.0)
+    assert 0.0 <= below <= 1.0
+    # strictly-below + (>= threshold) accounts for all runs
+    at_or_above = float((df["stranded_per_hour"] >= 1.0).mean())
+    assert below + at_or_above == pytest.approx(1.0)
 
 
 def test_value_at_risk_within_range(base_graph):

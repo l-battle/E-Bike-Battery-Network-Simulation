@@ -84,6 +84,25 @@ def plot_optimization_curve(history):
     return fig
 
 
+def plot_risk_distribution(values, label, threshold=None):
+    """Histogram of an outcome across runs, with mean/p10/p90 (and an optional
+    threshold, e.g. break-even). The visual form of a risk profile."""
+    values = np.asarray(values, dtype=float)
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.hist(values, bins=15, color="tab:blue", alpha=0.8)
+    ax.axvline(values.mean(), color="k", ls="--", label="mean")
+    ax.axvline(np.quantile(values, 0.10), color="tab:orange", ls=":", label="p10")
+    ax.axvline(np.quantile(values, 0.90), color="tab:orange", ls=":", label="p90")
+    if threshold is not None:
+        ax.axvline(threshold, color="red", lw=2, label="threshold")
+    ax.set_xlabel(label)
+    ax.set_ylabel("runs")
+    ax.set_title(f"Distribution of {label}")
+    ax.legend()
+    fig.tight_layout()
+    return fig
+
+
 def plot_placement_comparison(labels, values, ylabel="mean stranded riders"):
     """Bar chart comparing optimized vs random placement outcomes."""
     fig, ax = plt.subplots(figsize=(5, 4))
