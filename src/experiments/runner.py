@@ -90,6 +90,8 @@ def summarize(model, warmup_steps, seconds_per_step):
 
     swaps = delta("swap_count")
     failed = delta("failed_swaps")
+    completed = delta("completed_trips")
+    stranded = delta("stranded_count")
     n_lockers = max(len(model.graph_lockers), 1)
 
     mean = lambda key: (sum(r[key] for r in window) / len(window)) if window else 0.0
@@ -102,6 +104,11 @@ def summarize(model, warmup_steps, seconds_per_step):
         "failed_swaps_per_hour": per_hour("failed_swaps"),
         "stranded_per_hour": per_hour("stranded_count"),
         "swap_success_rate": swaps / (swaps + failed) if (swaps + failed) else 1.0,
+        # Robust service level: of all delivery outcomes (completed or
+        # stranded), the fraction completed. Defined whenever there is activity,
+        # unlike swap_success_rate which is degenerate (=1) with no swaps.
+        "delivery_success_rate":
+            completed / (completed + stranded) if (completed + stranded) else 1.0,
         "mean_battery_wh": mean("avg_battery"),
         "mean_stranded_riders": mean("stranded_riders"),
         "locker_utilization": per_hour("swap_count") / n_lockers,
