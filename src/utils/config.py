@@ -31,6 +31,16 @@ DEFAULT_LOCKER_CAPACITY = 10          # max total batteries (charged + depleted)
 # Real locker hardware comes in these slot capacities.
 LOCKER_CAPACITY_TYPES = (7, 8, 10)
 
+# Unit economics (EUR) for translating service outcomes into profit. These are
+# placeholder estimates pending real operator figures; isolated here so they can
+# be replaced without touching the model.
+ECONOMICS = {
+    "revenue_per_delivery": 1.50,     # net margin per completed delivery
+    "cost_per_locker_per_day": 20.0,  # amortised capex + opex per locker
+    "cost_per_stranded": 8.0,         # lost order + recovery per stranding
+    "cost_per_swap": 0.30,            # charging energy + battery wear per swap
+}
+
 # Warn if a CSV locker snaps further than this (metres) from its coordinates,
 # which usually means the graph has no coverage near that location.
 MAX_LOCKER_SNAP_METERS = 200
