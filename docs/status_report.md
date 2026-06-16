@@ -1,15 +1,28 @@
 # Status Report — E-Bike Battery-Swap Network Simulation
 
-_Last updated: 2026-06-06_
+_Last updated: 2026-06-07_
 
 ## Summary
 
-The simulation engine is **complete, validated, and tested**. It models a
-city-scale battery-swap network on real Amsterdam street data, with realistic
-time, battery physics, demand, weather, and route constraints. An experiment
-framework and a sensitivity analysis are in place. The AI/optimisation phase is
-**intentionally paused** pending real operator data; the immediate focus is a
-pitch to secure that data.
+The simulation engine is **complete, validated, and tested**, with an AI
+surrogate + greedy placement optimiser on top. The system has since been
+extended (branch `v1-overhaul`) into a **decision-evaluation and
+risk-assessment tool**: a proposed decision is run across seeds and weather
+conditions to produce an outcome *distribution*, translated into euros
+(profit), giving a leading, risk-aware measure (e.g. probability of loss,
+worst-case service level) to complement a lagging P&L. All parameters remain
+documented best-estimates pending real operator data.
+
+### v1-overhaul additions (decision-tool)
+- **Risk layer** (`experiments/risk.py`) — `evaluate_decision` across
+  seeds/weathers; `risk_profile`, `probability_exceeds/below`, `value_at_risk`.
+- **Economic layer** (`experiments/economics.py`) — outcomes → revenue, costs,
+  profit; combined with risk = a financial risk profile.
+- **Robust service KPI** — `delivery_success_rate` (non-degenerate).
+- **Performance** — parallel sweeps reuse a per-worker graph in place
+  (no per-run 78k-edge copy); idempotent ferry insertion.
+- **`scripts/evaluate_decision.py`** — end-to-end: expected profit, P(loss),
+  worst-case strandings, profit-distribution plot.
 
 ---
 
