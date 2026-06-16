@@ -28,17 +28,23 @@ DEFAULT_SETTINGS = {
 }
 
 
-def run_draw(draw, base_graph, settings, demand=None):
+def run_draw(draw, base_graph, settings, demand=None, copy_graph=True):
     """Run one sampled experiment and return a flat result row.
 
     A prebuilt `demand` is reused if given (avoids rebuilding it every run).
     Features are computed after the model is built (it annotates the graph)
     but before stepping.
+
+    `copy_graph=True` (default) isolates each run with a fresh graph copy.
+    Set `copy_graph=False` to reuse `base_graph` in place -- safe when the
+    caller owns a private graph (e.g. a parallel worker) and runs sequentially,
+    since cost annotation is deterministic and ferry insertion is idempotent.
+    Avoiding the copy removes the dominant memory/time cost in large sweeps.
     """
     set_seed(draw["seed"])
 
-    # Fresh copy so per-run graph mutations never leak between draws.
-    city_graph = CityGraph(graph=base_graph.copy())
+    graph = base_graph.copy() if copy_graph else base_graph
+    city_graph = CityGraph(graph=graph)
     scenario = draw["scenario"]
 
     model = GraphBatterySwapModel(
@@ -86,7 +92,10 @@ def _init_worker(place_name, hotspot_csv):
 
 def _worker_run(args):
     draw, settings = args
-    return run_draw(draw, _WORKER["graph"], settings, demand=_WORKER["demand"])
+    # The worker owns its graph and runs draws sequentially, so reuse it in
+    # place (no per-run copy) -- the big speed/memory win for large sweeps.
+    return run_draw(draw, _WORKER["graph"], settings,
+                    demand=_WORKER["demand"], copy_graph=False)
 
 
 def run_dataset(draws, settings=None, base_graph=None, out_stem=None,

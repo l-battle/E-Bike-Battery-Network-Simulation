@@ -117,6 +117,11 @@ class CityGraph:
             )
 
             for a, b in ((from_node, to_node), (to_node, from_node)):
+                # Idempotent: skip if this ferry edge already exists, so the
+                # graph can be reused across runs without accumulating dupes.
+                existing = self.graph.get_edge_data(a, b)
+                if existing and any(d.get("is_ferry") for d in existing.values()):
+                    continue
                 self.graph.add_edge(
                     a, b,
                     length=length,

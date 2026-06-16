@@ -82,6 +82,18 @@ def test_add_ferry_routes(annotated_city):
     assert annotated_city.edge_cost(8, 0)[2] is True
 
 
+def test_add_ferry_routes_is_idempotent(annotated_city):
+    records = [{
+        "name": "F", "from_lat": node_lonlat(0)[1], "from_lon": node_lonlat(0)[0],
+        "to_lat": node_lonlat(8)[1], "to_lon": node_lonlat(8)[0],
+        "crossing_seconds": 210, "wait_seconds": 180,
+    }]
+    annotated_city.add_ferry_routes(records)
+    edges_after_first = annotated_city.graph.number_of_edges()
+    annotated_city.add_ferry_routes(records)        # again
+    assert annotated_city.graph.number_of_edges() == edges_after_first
+
+
 def test_injected_graph_skips_osm(grid_graph):
     # Constructing with a graph must not hit the network.
     cg = CityGraph(graph=grid_graph)
